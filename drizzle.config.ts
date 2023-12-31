@@ -1,12 +1,16 @@
-import { type Config } from "drizzle-kit"
+import { type Config } from "drizzle-kit";
 
-import { env } from "~/env"
+import { env } from "~/env";
+
+console.log("DATABASE_URL", env.DATABASE_URL);
 
 export default {
   schema: "./src/server/db/schema.ts",
-  driver: "mysql2",
+  driver: "pg",
   dbCredentials: {
-    uri: env.DATABASE_URL,
+    connectionString: env.DATABASE_URL,
   },
-  tablesFilter: ["remembo_*"],
-} satisfies Config
+  verbose: true,
+  strict: true,
+  // tablesFilter: ["remembo_*"],
+} satisfies Config;
