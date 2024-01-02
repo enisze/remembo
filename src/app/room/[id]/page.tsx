@@ -6,6 +6,8 @@ import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "~/app/_components/supabaseClient";
 
+const message: string[] = [];
+
 export default function Home() {
   const params = useParams();
 
@@ -13,59 +15,63 @@ export default function Home() {
 
   if (!roomName) return <div>no room name</div>;
 
-  const channel = supabase.channel(roomName as string);
+  const channelA = supabase.channel(`room`, {
+    config: {
+      broadcast: { self: true },
+    },
+  });
 
-  const presenceChannel = supabase.channel("presence");
+  const presence = supabase.channel("presence");
 
-  const [playername, setPlayername] = useState("");
-
-  presenceChannel
-    .on("presence", { event: "sync" }, () => {
-      const newState = channel.presenceState();
-      console.log("sync", newState);
-    })
-    .on("presence", { event: "join" }, ({ key, newPresences }) => {
-      console.log("join", key, newPresences);
-    })
-    .on("presence", { event: "leave" }, ({ key, leftPresences }) => {
-      console.log("leave", key, leftPresences);
-    })
-    .subscribe();
+  const [playername, setPlayername] = useState("test");
 
   const [players, setPlayers] = useState([]);
+
+  console.log(message);
 
   const test = useRef(false);
 
   const userStatus = {
-    user: "user-1",
+    user: playername,
     online_at: new Date().toISOString(),
+  };
+
+  type Payload = {
+    payload: { message: string };
+    type: "broadcast";
+    event: string;
+  };
+
+  const messageReceived = ({ payload }: Payload) => {
+    message.push(payload.message);
+    console.log("new message", payload.message);
   };
 
   // Subscribe to presence changes
   useEffect(() => {
     if (test.current) return;
 
-    const channel = supabase
-      .channel(roomName as string)
-      .on("broadcast", { event: "MESSAGE" }, (payload) => {
-        console.log("New message:", payload);
-      })
+    channelA
+      .on("broadcast", { event: "testing" }, (payload) =>
+        messageReceived(payload as Payload),
+      )
       .subscribe();
+    presence
+      .on("presence", { event: "sync" }, () => {
+        const newState = presence.presenceState();
+        console.log("sync", newState);
+      })
+      .on("presence", { event: "join" }, ({ key, newPresences }) => {
+        console.log("join", key, newPresences);
+      })
+      .on("presence", { event: "leave" }, ({ key, leftPresences }) => {
+        console.log("leave", key, leftPresences);
+      })
+      .subscribe(() => {
+        void presence.track(userStatus);
+      });
 
     test.current = true;
-
-    // void presenceChannel.subscribe((status) => {
-    //   if (status !== "SUBSCRIBED") {
-    //     return;
-    //   }
-
-    //   const presenceTrackStatus = channel.track(userStatus);
-    //   console.log(presenceTrackStatus);
-    // });
-
-    return () => {
-      void supabase.removeChannel(channel);
-    };
   }, [supabase]);
 
   return (
@@ -81,15 +87,24 @@ export default function Home() {
       <Button
         variant="outline"
         onClick={async () => {
-          await channel.send({
+          console.log("sending");
+          await channelA.send({
             type: "broadcast",
-            event: "MESSAGE",
+            event: "testing",
             payload: { message: playername },
           });
+
+          await presence.track(userStatus);
         }}
       >
         test
       </Button>
+      {playername}
+      <>
+        {message.map((m) => (
+          <div>{m}</div>
+        ))}
+      </>
     </div>
   );
 }
