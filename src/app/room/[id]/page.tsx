@@ -15,28 +15,58 @@ export default function Home() {
 
   const channel = supabase.channel(roomName as string);
 
+  const presenceChannel = supabase.channel("presence");
+
   const [playername, setPlayername] = useState("");
+
+  presenceChannel
+    .on("presence", { event: "sync" }, () => {
+      const newState = channel.presenceState();
+      console.log("sync", newState);
+    })
+    .on("presence", { event: "join" }, ({ key, newPresences }) => {
+      console.log("join", key, newPresences);
+    })
+    .on("presence", { event: "leave" }, ({ key, leftPresences }) => {
+      console.log("leave", key, leftPresences);
+    })
+    .subscribe();
+
+  const [players, setPlayers] = useState([]);
 
   const test = useRef(false);
 
+  const userStatus = {
+    user: "user-1",
+    online_at: new Date().toISOString(),
+  };
+
   // Subscribe to presence changes
   useEffect(() => {
-    // channel
-    //   .on("presence", { event: "sync" }, (event) => {
-    //     console.log("Presence change:", event);
-    //   })
-    //   .subscribe();
-
     if (test.current) return;
 
-    channel
+    const channel = supabase
+      .channel(roomName as string)
       .on("broadcast", { event: "MESSAGE" }, (payload) => {
         console.log("New message:", payload);
       })
       .subscribe();
 
     test.current = true;
-  }, []);
+
+    // void presenceChannel.subscribe((status) => {
+    //   if (status !== "SUBSCRIBED") {
+    //     return;
+    //   }
+
+    //   const presenceTrackStatus = channel.track(userStatus);
+    //   console.log(presenceTrackStatus);
+    // });
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [supabase]);
 
   return (
     <div className="flex h-screen flex-col gap-3 bg-blue-400 p-4">

@@ -2,7 +2,6 @@
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
-import { supabase } from "./_components/supabaseClient";
 
 export default function Home() {
   const router = useRouter();
@@ -12,7 +11,6 @@ export default function Home() {
         variant="outline"
         onClick={async () => {
           const id = uuidv4();
-          supabase.channel(id);
           router.push(`room/${id}`);
         }}
       >
