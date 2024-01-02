@@ -1,50 +1,46 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "~/app/_components/supabaseClient";
 
-const message: string[] = [];
+type Payload = {
+  payload: { message: string | string[]; type: "cards" | undefined };
+  type: "broadcast";
+  event: string;
+};
 
-export default function Home() {
-  const params = useParams();
+type Player = {
+  key: string | undefined;
+  name: string | undefined;
+};
+export function Game({ id, playerName }: { id: string; playerName: string }) {
+  const [messages, setMessages] = useState<string[]>([]);
 
-  const roomName = params.id;
-
-  if (!roomName) return <div>no room name</div>;
-
-  const channelA = supabase.channel(`room`, {
+  const channelA = supabase.channel(id, {
     config: {
       broadcast: { self: true },
     },
   });
 
+  const [cards, setCards] = useState<string[]>([]);
+
   const presence = supabase.channel("presence");
 
-  const [playername, setPlayername] = useState("test");
-
-  const [players, setPlayers] = useState([]);
-
-  console.log(message);
+  const [players, setPlayers] = useState<Player[]>([]);
 
   const test = useRef(false);
 
   const userStatus = {
-    user: playername,
+    user: playerName,
     online_at: new Date().toISOString(),
   };
 
-  type Payload = {
-    payload: { message: string };
-    type: "broadcast";
-    event: string;
-  };
-
   const messageReceived = ({ payload }: Payload) => {
-    message.push(payload.message);
-    console.log("new message", payload.message);
+    if (payload.type === "cards") {
+      setCards((prevCards) => [...prevCards, ...(payload.message as string[])]);
+    }
+    setMessages((prev) => [...prev, payload.message as string]);
   };
 
   // Subscribe to presence changes
@@ -62,10 +58,15 @@ export default function Home() {
         console.log("sync", newState);
       })
       .on("presence", { event: "join" }, ({ key, newPresences }) => {
-        console.log("join", key, newPresences);
+        const user = newPresences.at(0);
+        setPlayers((prev) => [
+          ...prev,
+          { key: user?.presence_ref, name: user?.user as string },
+        ]);
       })
       .on("presence", { event: "leave" }, ({ key, leftPresences }) => {
-        console.log("leave", key, leftPresences);
+        const user = leftPresences.at(0);
+        setPlayers((prev) => prev.filter((p) => p.key !== user?.presence_ref));
       })
       .subscribe(() => {
         void presence.track(userStatus);
@@ -76,35 +77,32 @@ export default function Home() {
 
   return (
     <div className="flex h-screen flex-col gap-3 bg-blue-400 p-4">
-      <Input
-        type="text"
-        placeholder="playername"
-        value={playername}
-        onChange={(e) => {
-          setPlayername(e.target.value);
-        }}
-      />
       <Button
         variant="outline"
         onClick={async () => {
-          console.log("sending");
           await channelA.send({
             type: "broadcast",
             event: "testing",
-            payload: { message: playername },
+            payload: { message: playerName },
           });
-
-          await presence.track(userStatus);
         }}
       >
         test
       </Button>
-      {playername}
-      <>
-        {message.map((m) => (
-          <div>{m}</div>
-        ))}
-      </>
+      <div>Messages</div>
+      {messages.map((m) => (
+        <div>{m}</div>
+      ))}
+
+      <div>Players</div>
+      {players.map((p) => (
+        <div>{p.name}</div>
+      ))}
+
+      <div>Cards</div>
+      {cards.map((c) => (
+        <div>{c}</div>
+      ))}
     </div>
   );
 }
