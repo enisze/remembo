@@ -2,12 +2,9 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { atom } from "jotai";
 import { useState } from "react";
 import { Cards } from "./Cards";
 import { Game } from "./Game2";
-
-export const nameAtom = atom<string>("");
 
 export default function Home() {
   const [name, setName] = useState("");
