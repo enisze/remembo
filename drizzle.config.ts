@@ -1,8 +1,6 @@
-import { type Config } from "drizzle-kit";
+import { type Config } from "drizzle-kit"
 
-import { env } from "~/env";
-
-console.log("DATABASE_URL", env.DATABASE_URL);
+import { env } from "~/env"
 
 export default {
   schema: "./src/server/db/schema.ts",
@@ -13,4 +11,4 @@ export default {
   verbose: true,
   strict: true,
   // tablesFilter: ["remembo_*"],
-} satisfies Config;
+} satisfies Config
