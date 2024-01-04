@@ -1,6 +1,27 @@
-import { useAtomValue } from "jotai"
+import { Button } from "@/components/ui/button"
+import { atom, useAtom, useAtomValue } from "jotai"
 import { useEffect, useState } from "react"
-import { cardAtom } from "./Game2"
+import { cardAtom, type Player } from "./Game2"
+
+const team1PlayersAtom = atom<Player[]>([])
+const team2PlayersAtom = atom<Player[]>([])
+const currentPlayerAtom = atom<Player | undefined>(undefined)
+const currentTeamAtom = atom(1)
+const remainingTimeAtomA = atom(0)
+const remainingTimeAtomB = atom(0)
+
+function getNextPlayer(
+  teamPlayers: Player[],
+  currentPlayer: Player | undefined,
+) {
+  if (!currentPlayer) return teamPlayers[0]
+  const currentPlayerIndex = teamPlayers.indexOf(currentPlayer)
+  return currentPlayerIndex === teamPlayers.length - 1
+    ? teamPlayers[0]
+    : teamPlayers[currentPlayerIndex + 1]
+}
+
+// In your component
 
 export const Timer = () => {
   const initialCards = useAtomValue(cardAtom)
@@ -9,6 +30,58 @@ export const Timer = () => {
   const [currentItem, setCurrentItem] = useState(initialCards[0])
   const [timerStarted, setTimerStarted] = useState(false)
   const [timeLeft, setTimeLeft] = useState(60)
+
+  const [team1Players] = useAtom(team1PlayersAtom)
+  const [team2Players] = useAtom(team2PlayersAtom)
+  const [currentPlayer, setCurrentPlayer] = useAtom(currentPlayerAtom)
+  const [currentTeam, setCurrentTeam] = useAtom(currentTeamAtom)
+  const [remainingTimeA, setRemainingTimeA] = useAtom(remainingTimeAtomA)
+  const [remainingTimeB, setRemainingTimeB] = useAtom(remainingTimeAtomB)
+
+  const handleNextPlayer = () => {
+    const remainingTime = currentTeam === 1 ? remainingTimeA : remainingTimeB
+    setTimeLeft(60 + remainingTime)
+
+    setCurrentTeam(currentTeam === 1 ? 2 : 1)
+    setCurrentPlayer(
+      getNextPlayer(
+        currentTeam === 1 ? team2Players : team1Players,
+        currentPlayer,
+      ),
+    )
+  }
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout | null = null
+    if (timerStarted) {
+      timer = setInterval(() => {
+        setTimeLeft((prevTime) => {
+          const newTime = prevTime - 1
+
+          if (currentTeam === 1) {
+            setRemainingTimeA(newTime)
+          } else {
+            setRemainingTimeB(newTime)
+          }
+          return newTime
+        })
+        if (timeLeft <= 0) {
+          setCurrentItem("Over")
+          setTimerStarted(false)
+          setCurrentTeam(currentTeam === 1 ? 2 : 1)
+          setCurrentPlayer(
+            getNextPlayer(
+              currentTeam === 1 ? team2Players : team1Players,
+              currentPlayer,
+            ),
+          )
+        }
+      }, 1000)
+    }
+    return () => {
+      if (timer) clearInterval(timer)
+    }
+  }, [timerStarted, timeLeft, currentPlayer, currentTeam])
 
   const handleClick = () => {
     if (!timerStarted) {
@@ -51,6 +124,12 @@ export const Timer = () => {
       <p>Time left: {timeLeft}</p>
       <p>{currentItem}</p>
       <button onClick={handleClick}>Next item</button>
+      {timeLeft <= 0 ||
+        (displayedItems.length === initialCards.length && (
+          <button onClick={handleNextPlayer}>Next player</button>
+        ))}
+
+      <Button onClick={() => setTimerStarted(true)}>Start</Button>
     </div>
   )
 }

@@ -1,23 +1,23 @@
-"use client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useState } from "react";
-import { Cards } from "./Cards";
-import { Game } from "./Game2";
+"use client"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { useState } from "react"
+import { Cards } from "./Cards"
+import { Game } from "./Game2"
 
 export default function Home() {
-  const [name, setName] = useState("");
+  const [name, setName] = useState("")
 
-  const [gameId, setGameId] = useState<string>("");
+  const [gameId, setGameId] = useState<string>("")
 
   if (gameId)
     return (
       <div>
         <Cards id={gameId} />
-        <Game id={gameId} playerName={name} />;
+        <Game id={gameId} playerName={name} />
       </div>
-    );
+    )
 
   return (
     <div className="flex h-screen flex-col gap-3 bg-blue-400 p-4">
@@ -28,17 +28,17 @@ export default function Home() {
         placeholder="playername"
         value={name}
         onChange={(e) => {
-          setName(e.target.value);
+          setName(e.target.value)
         }}
       />
       <Button
         variant="outline"
         onClick={() => {
-          setGameId("abc");
+          setGameId("abc")
         }}
       >
         Create game
       </Button>
     </div>
-  );
+  )
 }
