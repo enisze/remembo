@@ -1,6 +1,6 @@
 import { useAtom } from "jotai"
 import { useEffect, useRef } from "react"
-import { playersAtom } from "./Game2"
+import { playersAtom } from "./Game"
 import { supabase } from "./_components/supabaseClient"
 
 export const PlayerPresence = ({

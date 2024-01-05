@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { atom, useAtom, useAtomValue } from "jotai"
 import { useState } from "react"
-import { playersAtom, type Player } from "./Game2"
+import { playersAtom, type Player } from "./Game"
 
 // Define atoms for team A and B
 export const teamAState = atom<Player[]>([])
@@ -59,7 +59,6 @@ export const TeamSelector = ({ player }: { player: Player | undefined }) => {
     <div>
       <Button onClick={() => selectTeam("A")}>Join Team A</Button>
       <Button onClick={() => selectTeam("B")}>Join Team B</Button>
-      {selectedTeam && <p>You have selected Team {selectedTeam}</p>}
 
       <Button onClick={distributePlayersRandomly}>
         Distribute Players Randomly
