@@ -5,17 +5,21 @@ import { cardAtom } from "./AddCardsView"
 import { type Player } from "./Game"
 import { NextItem } from "./NextItem"
 
-const team1PlayersAtom = atom<Player[]>([])
-const team2PlayersAtom = atom<Player[]>([])
+type Team = {
+  players: Player[]
+  remainingTime: number
+  points: number
+}
+
+export const teamsAtom = atom<Team[]>([
+  { players: [], remainingTime: 0, points: 0 },
+  { players: [], remainingTime: 0, points: 0 },
+])
 const currentPlayerAtom = atom<Player | undefined>(undefined)
-const currentTeamAtom = atom(1)
-const remainingTimeAtomA = atom(0)
-const remainingTimeAtomB = atom(0)
+export const currentTeamAtom = atom(0)
 
 export const currentItemAtom = atom("")
-
 export const displayedItemsAtom = atom<string[]>([])
-
 export const timerStartedAtom = atom(false)
 
 function getNextPlayer(
@@ -31,19 +35,20 @@ function getNextPlayer(
 
 export const Timer = () => {
   const initialCards = useAtomValue(cardAtom)
-
   const displayedItems = useAtomValue(displayedItemsAtom)
 
   const [currentItem, setCurrentItem] = useAtom(currentItemAtom)
   const [timerStarted, setTimerStarted] = useAtom(timerStartedAtom)
   const [timeLeft, setTimeLeft] = useState(60)
 
-  const [team1Players] = useAtom(team1PlayersAtom)
-  const [team2Players] = useAtom(team2PlayersAtom)
+  const [teams, setTeams] = useAtom(teamsAtom)
+  const team1Players = teams[0]?.players ?? []
+  const team2Players = teams[1]?.players ?? []
+
+  const remainingTimeA = teams[0]?.remainingTime ?? 0
+  const remainingTimeB = teams[1]?.remainingTime ?? 0
   const [currentPlayer, setCurrentPlayer] = useAtom(currentPlayerAtom)
   const [currentTeam, setCurrentTeam] = useAtom(currentTeamAtom)
-  const [remainingTimeA, setRemainingTimeA] = useAtom(remainingTimeAtomA)
-  const [remainingTimeB, setRemainingTimeB] = useAtom(remainingTimeAtomB)
 
   const remainingCards = useMemo(
     () => initialCards.filter((item) => !displayedItems.includes(item)),
@@ -70,11 +75,20 @@ export const Timer = () => {
         setTimeLeft((prevTime) => {
           const newTime = prevTime - 1
 
-          if (currentTeam === 1) {
-            setRemainingTimeA(newTime)
-          } else {
-            setRemainingTimeB(newTime)
-          }
+          setTeams((prevTeams) => {
+            const newTeams = [...prevTeams]
+            if (currentTeam === 1) {
+              if (newTeams[0]) {
+                newTeams[0].remainingTime = newTime
+              }
+            } else {
+              if (newTeams[1]) {
+                newTeams[1].remainingTime = newTime
+              }
+            }
+            return newTeams
+          })
+
           return newTime
         })
         if (timeLeft <= 0) {
@@ -97,6 +111,8 @@ export const Timer = () => {
 
   return (
     <div>
+      <h1>Its your turn</h1>
+      <div>{currentPlayer?.name}</div>
       <h1>Timer</h1>
       <p>Time left: {timeLeft}</p>
       <p>{currentItem}</p>
@@ -116,6 +132,12 @@ export const Timer = () => {
             const card = remainingCards[0]
             if (card) {
               setCurrentItem(card)
+              setCurrentPlayer(
+                getNextPlayer(
+                  currentTeam === 1 ? team1Players : team2Players,
+                  currentPlayer,
+                ),
+              )
             }
           }
         }}
