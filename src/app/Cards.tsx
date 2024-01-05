@@ -3,13 +3,19 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { cn } from "@/lib/utils"
+import { atom, useAtom } from "jotai"
 import { useState } from "react"
 import { supabase } from "./_components/supabaseClient"
+
+export const showCardAtom = atom(true)
 
 export function Cards({ id }: { id: string }) {
   const [cardOne, setCardOne] = useState<string>("")
   const [cardTwo, setCardTwo] = useState<string>("")
   const [cardThree, setCardThree] = useState<string>("")
+
+  const [showCardComponent, setShowCardComponent] = useAtom(showCardAtom)
 
   const channelA = supabase.channel(id, {
     config: {
@@ -18,39 +24,48 @@ export function Cards({ id }: { id: string }) {
   })
 
   return (
-    <div className="flex flex-col gap-3 p-4">
-      <CardInput
-        value={cardOne}
-        onChange={(value) => {
-          setCardOne(value)
-        }}
-      />
-      <CardInput
-        value={cardTwo}
-        onChange={(value) => {
-          setCardTwo(value)
-        }}
-      />
-      <CardInput
-        value={cardThree}
-        onChange={(value) => {
-          setCardThree(value)
-        }}
-      />
-
-      <Button
-        variant="outline"
-        onClick={async () => {
-          console.log("sending")
+    <div
+      className={cn(
+        "flex h-96 flex-col gap-3 p-4 transition-all duration-500 ease-in-out",
+        showCardComponent ? "translate-y-0 " : "-translate-y-full",
+      )}
+    >
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault()
           await channelA.send({
             type: "broadcast",
             event: "testing",
-            payload: { message: [cardOne, cardTwo, cardThree], type: "cards" },
+            payload: {
+              message: [cardOne, cardTwo, cardThree],
+              type: "cards",
+            },
           })
+
+          setShowCardComponent(false)
         }}
       >
-        Submit Cards
-      </Button>
+        <CardInput
+          value={cardOne}
+          onChange={(value) => {
+            setCardOne(value)
+          }}
+        />
+        <CardInput
+          value={cardTwo}
+          onChange={(value) => {
+            setCardTwo(value)
+          }}
+        />
+        <CardInput
+          value={cardThree}
+          onChange={(value) => {
+            setCardThree(value)
+          }}
+        />
+
+        <Button variant="outline">Submit Cards</Button>
+      </form>
     </div>
   )
 }
@@ -70,6 +85,7 @@ const CardInput = ({
         type="text"
         placeholder="card"
         value={value}
+        required
         onChange={(e) => {
           onChange(e.target.value)
         }}

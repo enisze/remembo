@@ -2,23 +2,33 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { cn } from "@/lib/utils"
+import { useAtomValue } from "jotai"
 import { useState } from "react"
 import { AddCardsView } from "./AddCardsView"
-import { Cards } from "./Cards"
+import { Cards, showCardAtom } from "./Cards"
 import { Game } from "./Game"
 
 export default function Home() {
   const [name, setName] = useState("")
 
   const [gameId, setGameId] = useState<string>("")
+  const showCards = useAtomValue(showCardAtom)
 
   if (gameId)
     return (
       <div className="bg-slate-800 text-white">
         <Cards id={gameId} />
 
-        <AddCardsView id={gameId} />
-        <Game id={gameId} playerName={name} />
+        <div
+          className={cn(
+            "transform transition-all duration-500 ease-in-out",
+            showCards ? "translate-y-0" : "-translate-y-96",
+          )}
+        >
+          <AddCardsView id={gameId} />
+          <Game id={gameId} playerName={name} />
+        </div>
       </div>
     )
 
