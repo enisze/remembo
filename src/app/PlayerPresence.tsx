@@ -1,7 +1,10 @@
-import { useAtom } from "jotai"
+import { atom, useAtom, useAtomValue } from "jotai"
 import { useEffect, useRef } from "react"
-import { playersAtom } from "./Game"
+import { playersAtom, type Player } from "./Game"
 import { supabase } from "./_components/supabaseClient"
+import { nameAtom } from "./page"
+
+export const meAtom = atom<Player | null>(null)
 
 export const PlayerPresence = ({
   id,
@@ -11,6 +14,9 @@ export const PlayerPresence = ({
   playerName: string
 }) => {
   const [players, setPlayers] = useAtom(playersAtom)
+  const [me, setMe] = useAtom(meAtom)
+
+  const name = useAtomValue(nameAtom)
 
   const test = useRef(false)
 
@@ -25,12 +31,16 @@ export const PlayerPresence = ({
     if (test.current) return
 
     presence
-      .on("presence", { event: "sync" }, () => {
-        const newState = presence.presenceState()
-        console.log("sync", newState)
-      })
       .on("presence", { event: "join" }, ({ key, newPresences }) => {
         const user = newPresences.at(0)
+
+        const myself = newPresences.find((p) => (p?.user as string) === name)
+
+        setMe({
+          key: myself?.presence_ref,
+          name: myself?.user as string,
+        })
+
         setPlayers((prev) => [
           ...prev,
           { key: user?.presence_ref, name: user?.user as string },
@@ -51,7 +61,7 @@ export const PlayerPresence = ({
     <>
       <div className="rounded-md border p-4">Players</div>
       {players.map((p) => (
-        <div>{p.name}</div>
+        <div key={p.key}>{p.name}</div>
       ))}
     </>
   )

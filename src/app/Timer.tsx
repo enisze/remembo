@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import { atom, useAtom, useAtomValue } from "jotai"
 import { useEffect, useMemo, useState } from "react"
 import { cardAtom } from "./AddCardsView"
+import { CurrentItemView } from "./CurrentItemView"
 import { type Player } from "./Game"
 import { NextItem } from "./NextItem"
 
@@ -15,7 +16,7 @@ export const teamsAtom = atom<Team[]>([
   { players: [], remainingTime: 0, points: 0 },
   { players: [], remainingTime: 0, points: 0 },
 ])
-const currentPlayerAtom = atom<Player | undefined>(undefined)
+export const currentPlayerAtom = atom<Player | undefined>(undefined)
 export const currentTeamAtom = atom(0)
 
 export const currentItemAtom = atom("")
@@ -72,6 +73,7 @@ export const Timer = () => {
     let timer: NodeJS.Timeout | null = null
     if (timerStarted) {
       timer = setInterval(() => {
+        console.log("running timer")
         setTimeLeft((prevTime) => {
           const newTime = prevTime - 1
 
@@ -115,7 +117,7 @@ export const Timer = () => {
       <div>{currentPlayer?.name}</div>
       <h1>Timer</h1>
       <p>Time left: {timeLeft}</p>
-      <p>{currentItem}</p>
+      <CurrentItemView />
 
       {timeLeft <= 0 ||
         (displayedItems.length === initialCards.length && (

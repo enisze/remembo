@@ -3,14 +3,16 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
-import { useAtomValue } from "jotai"
+import { atom, useAtom, useAtomValue } from "jotai"
 import { useState } from "react"
 import { AddCardsView } from "./AddCardsView"
 import { Cards, showCardAtom } from "./Cards"
 import { Game } from "./Game"
 
+export const nameAtom = atom("")
+
 export default function Home() {
-  const [name, setName] = useState("")
+  const [name, setName] = useAtom(nameAtom)
 
   const [gameId, setGameId] = useState<string>("")
   const showCards = useAtomValue(showCardAtom)
