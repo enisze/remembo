@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
 import { atom, useAtom, useAtomValue } from "jotai"
 import { useState } from "react"
-import { AddCardsView } from "./AddCardsView"
+import { AddCardsSubscribe } from "./AddCardsView"
 import { Cards, showCardAtom } from "./Cards"
 import { Game } from "./Game"
 
@@ -28,7 +28,7 @@ export default function Home() {
             showCards ? "translate-y-0" : "-translate-y-96",
           )}
         >
-          <AddCardsView id={gameId} />
+          <AddCardsSubscribe id={gameId} />
           <Game id={gameId} playerName={name} />
         </div>
       </div>

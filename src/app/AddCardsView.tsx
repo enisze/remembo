@@ -1,13 +1,11 @@
-import { atom, useAtom } from "jotai"
+import { atom, useSetAtom } from "jotai"
 import { useEffect, useRef } from "react"
 import { type Payload } from "./Game"
 import { supabase } from "./_components/supabaseClient"
 
 export const cardAtom = atom<string[]>([])
-export const AddCardsView = ({ id }: { id: string }) => {
-  const channelB = supabase.channel("schema-db-changes")
-
-  const [cards, setCards] = useAtom(cardAtom)
+export const AddCardsSubscribe = ({ id }: { id: string }) => {
+  const setCards = useSetAtom(cardAtom)
 
   const test = useRef(false)
 
@@ -33,26 +31,8 @@ export const AddCardsView = ({ id }: { id: string }) => {
       )
       .subscribe()
 
-    channelB
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-        },
-        (payload) => console.log(payload),
-      )
-      .subscribe()
-
     test.current = true
   }, [supabase])
 
-  return (
-    <div className="rounded-md border p-4">
-      Cards
-      {cards.map((c) => (
-        <div>{c}</div>
-      ))}
-    </div>
-  )
+  return null
 }
