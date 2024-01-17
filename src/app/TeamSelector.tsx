@@ -1,20 +1,29 @@
 import { Button } from "@/components/ui/button"
-import { atom, useAtom, useAtomValue } from "jotai"
+import { useAtom, useAtomValue } from "jotai"
 import { useState } from "react"
 import { playersAtom, type Player } from "./Game"
-
-// Define atoms for team A and B
-export const teamAState = atom<Player[]>([])
-
-export const teamBState = atom<Player[]>([])
+import { teamAState, teamBState } from "./TeamSubscription"
+import { supabase } from "./_components/supabaseClient"
 
 type Team = "A" | "B" | null
 
 // TeamSelector component
-export const TeamSelector = ({ player }: { player: Player | undefined }) => {
+export const TeamSelector = ({
+  player,
+  id,
+}: {
+  player: Player | undefined
+  id: string
+}) => {
   const [selectedTeam, setSelectedTeam] = useState<Team>(null)
   const [teamA, setTeamA] = useAtom(teamAState)
   const [teamB, setTeamB] = useAtom(teamBState)
+
+  const channelA = supabase.channel(id, {
+    config: {
+      broadcast: { self: true },
+    },
+  })
 
   const players = useAtomValue(playersAtom)
 
@@ -39,7 +48,7 @@ export const TeamSelector = ({ player }: { player: Player | undefined }) => {
     setSelectedTeam(team)
   }
 
-  const distributePlayersRandomly = () => {
+  const distributePlayersRandomly = async () => {
     // Make a copy of the players array and shuffle it
     const shuffledPlayers = [...players].sort(() => Math.random() - 0.5)
 
@@ -51,6 +60,17 @@ export const TeamSelector = ({ player }: { player: Player | undefined }) => {
     // Set team A and team B state with these halves
     setTeamA(teamAPlayers)
     setTeamB(teamBPlayers)
+
+    await channelA.send({
+      type: "broadcast",
+      event: "teams",
+      payload: {
+        message: {
+          teamA: teamAPlayers,
+          teamB: teamBPlayers,
+        },
+      },
+    })
   }
 
   // Inside your render method

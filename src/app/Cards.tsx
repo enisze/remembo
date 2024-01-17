@@ -35,10 +35,9 @@ export function Cards({ id }: { id: string }) {
           e.preventDefault()
           await channelA.send({
             type: "broadcast",
-            event: "testing",
+            event: "cards",
             payload: {
               message: [cardOne, cardTwo, cardThree],
-              type: "cards",
             },
           })
 

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { atom, useAtom, useAtomValue } from "jotai"
 import { useEffect, useMemo, useState } from "react"
-import { cardAtom } from "./AddCardsView"
+import { cardAtom } from "./AddCardsSubscription"
 import { CurrentItemView } from "./CurrentItemView"
 import { type Player } from "./Game"
 import { NextItem } from "./NextItem"
