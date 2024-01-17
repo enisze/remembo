@@ -5,10 +5,12 @@ import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
 import { atom, useAtom, useAtomValue } from "jotai"
 import { useState } from "react"
-import { AddCardsSubscribe } from "./AddCardsSubscription"
 import { Cards, showCardAtom } from "./Cards"
 import { Game } from "./Game"
-import { TeamSubscription } from "./TeamSubscription"
+import { AddCardsSubscribe } from "./_subscriptions/AddCardsSubscription"
+import { CurrentPlayerSubscription } from "./_subscriptions/CurrentPlayerSubscription"
+import { CurrentTeamSubscription } from "./_subscriptions/CurrentTeamSubscription"
+import { TeamSubscription } from "./_subscriptions/TeamSubscription"
 
 export const nameAtom = atom("")
 
@@ -31,6 +33,8 @@ export default function Home() {
         >
           <AddCardsSubscribe id={gameId} />
           <TeamSubscription id={gameId} />
+          <CurrentPlayerSubscription id={gameId} />
+          <CurrentTeamSubscription id={gameId} />
           <Game id={gameId} playerName={name} />
         </div>
       </div>

@@ -1,15 +1,16 @@
 import { atom, useSetAtom } from "jotai"
 import { useEffect, useRef } from "react"
-import { supabase } from "./_components/supabaseClient"
+import { supabase } from "../_components/supabaseClient"
+
+export const currentTeamAtom = atom("A")
 
 export type Payload = {
-  payload: { message: string | string[] }
+  payload: { message: string }
   type: "broadcast"
   event: string
 }
-export const cardAtom = atom<string[]>([])
-export const AddCardsSubscribe = ({ id }: { id: string }) => {
-  const setCards = useSetAtom(cardAtom)
+export const CurrentTeamSubscription = ({ id }: { id: string }) => {
+  const setCurrentTeam = useSetAtom(currentTeamAtom)
   const called = useRef(false)
   const channelA = supabase.channel(id, {
     config: {
@@ -18,16 +19,14 @@ export const AddCardsSubscribe = ({ id }: { id: string }) => {
   })
 
   const messageReceived = ({ payload }: Payload) => {
-    console.log(payload)
-    setCards((prevCards) => [...prevCards, ...(payload.message as string[])])
+    setCurrentTeam(payload.message)
   }
 
-  // Subscribe to presence changes
   useEffect(() => {
     if (called.current) return
 
     channelA
-      .on("broadcast", { event: "cards" }, (payload) =>
+      .on("broadcast", { event: "currentTeam" }, (payload) =>
         messageReceived(payload as Payload),
       )
       .subscribe()

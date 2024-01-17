@@ -3,8 +3,8 @@
 import { atom, useAtomValue } from "jotai"
 import { PlayerPresence } from "./PlayerPresence"
 import { TeamSelector } from "./TeamSelector"
-import { teamAState, teamBState } from "./TeamSubscription"
 import { Timer } from "./Timer"
+import { teamAState, teamBState } from "./_subscriptions/TeamSubscription"
 
 export type Player = {
   key: string | undefined
@@ -33,7 +33,7 @@ export function Game({ id, playerName }: { id: string; playerName: string }) {
       <div className="text-md">TEAM B</div>
       {teamB?.map((m) => <div key={m.key}>{m.name}</div>)}
 
-      <Timer />
+      <Timer id={id} />
     </div>
   )
 }

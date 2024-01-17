@@ -1,7 +1,7 @@
 import { atom, useSetAtom } from "jotai"
 import { useEffect, useRef } from "react"
-import { type Player } from "./Game"
-import { supabase } from "./_components/supabaseClient"
+import { type Player } from "../Game"
+import { supabase } from "../_components/supabaseClient"
 
 export type Payload = {
   payload: { message: { teamA: Player[]; teamB: Player[] } }

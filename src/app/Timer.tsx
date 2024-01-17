@@ -1,10 +1,13 @@
 import { Button } from "@/components/ui/button"
 import { atom, useAtom, useAtomValue } from "jotai"
 import { useEffect, useMemo, useState } from "react"
-import { cardAtom } from "./AddCardsSubscription"
 import { CurrentItemView } from "./CurrentItemView"
 import { type Player } from "./Game"
 import { NextItem } from "./NextItem"
+import { useSetNextPlayer } from "./_helpers/useSyncCurrentPlayer"
+import { cardAtom } from "./_subscriptions/AddCardsSubscription"
+import { currentPlayerAtom } from "./_subscriptions/CurrentPlayerSubscription"
+import { currentTeamAtom } from "./_subscriptions/CurrentTeamSubscription"
 
 type Team = {
   players: Player[]
@@ -16,25 +19,12 @@ export const teamsAtom = atom<Team[]>([
   { players: [], remainingTime: 0, points: 0 },
   { players: [], remainingTime: 0, points: 0 },
 ])
-export const currentPlayerAtom = atom<Player | undefined>(undefined)
-export const currentTeamAtom = atom(0)
 
 export const currentItemAtom = atom("")
 export const displayedItemsAtom = atom<string[]>([])
 export const timerStartedAtom = atom(false)
 
-function getNextPlayer(
-  teamPlayers: Player[],
-  currentPlayer: Player | undefined,
-) {
-  if (!currentPlayer) return teamPlayers[0]
-  const currentPlayerIndex = teamPlayers.indexOf(currentPlayer)
-  return currentPlayerIndex === teamPlayers.length - 1
-    ? teamPlayers[0]
-    : teamPlayers[currentPlayerIndex + 1]
-}
-
-export const Timer = () => {
+export const Timer = ({ id }: { id: string }) => {
   const initialCards = useAtomValue(cardAtom)
   const displayedItems = useAtomValue(displayedItemsAtom)
 
@@ -43,30 +33,26 @@ export const Timer = () => {
   const [timeLeft, setTimeLeft] = useState(60)
 
   const [teams, setTeams] = useAtom(teamsAtom)
-  const team1Players = teams[0]?.players ?? []
-  const team2Players = teams[1]?.players ?? []
 
   const remainingTimeA = teams[0]?.remainingTime ?? 0
   const remainingTimeB = teams[1]?.remainingTime ?? 0
-  const [currentPlayer, setCurrentPlayer] = useAtom(currentPlayerAtom)
+  const [currentPlayer] = useAtom(currentPlayerAtom)
   const [currentTeam, setCurrentTeam] = useAtom(currentTeamAtom)
+
+  const setNextPlayer = useSetNextPlayer({ id })
 
   const remainingCards = useMemo(
     () => initialCards.filter((item) => !displayedItems.includes(item)),
     [initialCards, displayedItems],
   )
 
-  const handleNextPlayer = () => {
-    const remainingTime = currentTeam === 1 ? remainingTimeA : remainingTimeB
+  const handleNextPlayer = async () => {
+    const remainingTime = currentTeam === "A" ? remainingTimeA : remainingTimeB
     setTimeLeft(60 + remainingTime)
 
-    setCurrentTeam(currentTeam === 1 ? 2 : 1)
-    setCurrentPlayer(
-      getNextPlayer(
-        currentTeam === 1 ? team2Players : team1Players,
-        currentPlayer,
-      ),
-    )
+    setCurrentTeam(currentTeam === "A" ? "B" : "A")
+
+    await setNextPlayer()
   }
 
   useEffect(() => {
@@ -79,7 +65,7 @@ export const Timer = () => {
 
           setTeams((prevTeams) => {
             const newTeams = [...prevTeams]
-            if (currentTeam === 1) {
+            if (currentTeam === "A") {
               if (newTeams[0]) {
                 newTeams[0].remainingTime = newTime
               }
@@ -96,13 +82,11 @@ export const Timer = () => {
         if (timeLeft <= 0) {
           setCurrentItem("Over")
           setTimerStarted(false)
-          setCurrentTeam(currentTeam === 1 ? 2 : 1)
-          setCurrentPlayer(
-            getNextPlayer(
-              currentTeam === 1 ? team2Players : team1Players,
-              currentPlayer,
-            ),
-          )
+          setCurrentTeam(currentTeam === "A" ? "B" : "A")
+
+          void (async () => {
+            await setNextPlayer()
+          })()
         }
       }, 1000)
     }
@@ -127,19 +111,14 @@ export const Timer = () => {
         ))}
 
       <Button
-        onClick={() => {
+        onClick={async () => {
           if (remainingCards.length > 0) {
             setTimerStarted(true)
 
             const card = remainingCards[0]
             if (card) {
               setCurrentItem(card)
-              setCurrentPlayer(
-                getNextPlayer(
-                  currentTeam === 1 ? team1Players : team2Players,
-                  currentPlayer,
-                ),
-              )
+              await setNextPlayer()
             }
           }
         }}

@@ -2,8 +2,8 @@ import { Button } from "@/components/ui/button"
 import { useAtom, useAtomValue } from "jotai"
 import { useState } from "react"
 import { playersAtom, type Player } from "./Game"
-import { teamAState, teamBState } from "./TeamSubscription"
 import { supabase } from "./_components/supabaseClient"
+import { teamAState, teamBState } from "./_subscriptions/TeamSubscription"
 
 type Team = "A" | "B" | null
 
