@@ -31,20 +31,21 @@ export const TeamSelector = ({
     const isPlayerInTeamB = teamTwo.players.some((p) => p.key === player.key)
 
     if (team === "A" && !isPlayerInTeamA) {
-      setTeamOne((oldTeam) => {
-        return {
-          ...oldTeam,
-          players: [...oldTeam.players, player],
-        }
-      })
+      const newTeamOne = {
+        ...teamOne,
+        players: [...teamOne.players, player],
+      }
+
+      setTeamOne(newTeamOne)
+
+      let newTeamTwo = teamTwo
 
       if (isPlayerInTeamB) {
-        setTeamTwo((oldTeam) => {
-          return {
-            ...oldTeam,
-            players: oldTeam.players.filter((p) => p.key !== player.key),
-          }
-        })
+        newTeamTwo = {
+          ...teamTwo,
+          players: teamTwo.players.filter((p) => p.key !== player.key),
+        }
+        setTeamTwo(newTeamTwo)
       }
 
       await channelA.send({
@@ -52,28 +53,29 @@ export const TeamSelector = ({
         event: "teams",
         payload: {
           message: {
-            teamOne,
-            teamTwo,
+            teamOne: newTeamOne,
+            teamTwo: newTeamTwo,
           },
         },
       })
 
       return
     } else if (team === "B" && !isPlayerInTeamB) {
-      setTeamTwo((oldTeam) => {
-        return {
-          ...oldTeam,
-          players: [...oldTeam.players, player],
-        }
-      })
+      const newTeamTwo = {
+        ...teamTwo,
+        players: [...teamTwo.players, player],
+      }
 
+      setTeamTwo(newTeamTwo)
+
+      let newTeamOne = teamOne
       if (isPlayerInTeamA) {
-        setTeamOne((oldTeam) => {
-          return {
-            ...oldTeam,
-            players: oldTeam.players.filter((p) => p.key !== player.key),
-          }
-        })
+        newTeamOne = {
+          ...teamOne,
+          players: teamOne.players.filter((p) => p.key !== player.key),
+        }
+
+        setTeamOne(newTeamOne)
       }
 
       await channelA.send({
@@ -81,8 +83,8 @@ export const TeamSelector = ({
         event: "teams",
         payload: {
           message: {
-            teamOne,
-            teamTwo,
+            teamOne: newTeamOne,
+            teamTwo: newTeamTwo,
           },
         },
       })
@@ -98,27 +100,27 @@ export const TeamSelector = ({
     const teamOnePlayers = shuffledPlayers.slice(0, halfwayThrough)
     const teamTwoPlayers = shuffledPlayers.slice(halfwayThrough)
 
+    const newTeamOne = {
+      ...teamOne,
+      players: teamOnePlayers,
+    }
+
+    const newTeamTwo = {
+      ...teamTwo,
+      players: teamTwoPlayers,
+    }
+
     // Set team A and team B state with these halves
-    setTeamOne((oldTeam) => {
-      return {
-        ...oldTeam,
-        players: teamOnePlayers,
-      }
-    })
-    setTeamTwo((oldTeam) => {
-      return {
-        ...oldTeam,
-        players: teamTwoPlayers,
-      }
-    })
+    setTeamOne(newTeamOne)
+    setTeamTwo(newTeamTwo)
 
     await channelA.send({
       type: "broadcast",
       event: "teams",
       payload: {
         message: {
-          teamOne,
-          teamTwo,
+          teamOne: newTeamOne,
+          teamTwo: newTeamTwo,
         },
       },
     })
