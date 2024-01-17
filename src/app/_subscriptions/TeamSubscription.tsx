@@ -27,8 +27,8 @@ export const teamTwoAtom = atom<Team>({
 })
 
 export const TeamSubscription = ({ id }: { id: string }) => {
-  const setTeamA = useSetAtom(teamOneAtom)
-  const setTeamB = useSetAtom(teamTwoAtom)
+  const setTeamOne = useSetAtom(teamOneAtom)
+  const setTeamTwo = useSetAtom(teamTwoAtom)
   const test = useRef(false)
 
   const channelA = supabase.channel(id, {
@@ -40,8 +40,8 @@ export const TeamSubscription = ({ id }: { id: string }) => {
   const messageReceived = ({ payload }: Payload) => {
     console.log(payload)
 
-    setTeamA(payload.message.teamOne)
-    setTeamB(payload.message.teamTwo)
+    setTeamOne(payload.message.teamOne)
+    setTeamTwo(payload.message.teamTwo)
   }
 
   useEffect(() => {
