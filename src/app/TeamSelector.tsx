@@ -1,13 +1,11 @@
 import { Button } from "@/components/ui/button"
 import { useAtom, useAtomValue } from "jotai"
-import { useState } from "react"
 import { playersAtom, type Player } from "./Game"
 import { supabase } from "./_components/supabaseClient"
-import { teamAState, teamBState } from "./_subscriptions/TeamSubscription"
+import { teamOneAtom, teamTwoAtom } from "./_subscriptions/TeamSubscription"
 
 type Team = "A" | "B" | null
 
-// TeamSelector component
 export const TeamSelector = ({
   player,
   id,
@@ -15,9 +13,8 @@ export const TeamSelector = ({
   player: Player | undefined
   id: string
 }) => {
-  const [selectedTeam, setSelectedTeam] = useState<Team>(null)
-  const [teamA, setTeamA] = useAtom(teamAState)
-  const [teamB, setTeamB] = useAtom(teamBState)
+  const [teamOne, setTeamOne] = useAtom(teamOneAtom)
+  const [teamTwo, setTeamTwo] = useAtom(teamTwoAtom)
 
   const channelA = supabase.channel(id, {
     config: {
@@ -27,25 +24,69 @@ export const TeamSelector = ({
 
   const players = useAtomValue(playersAtom)
 
-  const selectTeam = (team: Team) => {
+  const selectTeam = async (team: Team) => {
     if (!player) return
 
-    const isPlayerInTeamA = teamA.some((p) => p.key === player.key)
-    const isPlayerInTeamB = teamB.some((p) => p.key === player.key)
+    const isPlayerInTeamA = teamOne.players.some((p) => p.key === player.key)
+    const isPlayerInTeamB = teamTwo.players.some((p) => p.key === player.key)
 
     if (team === "A" && !isPlayerInTeamA) {
-      setTeamA((oldTeamA) => [...oldTeamA, player])
-      if (isPlayerInTeamB) {
-        setTeamB((oldTeamB) => oldTeamB.filter((p) => p.key !== player.key))
-      }
-    } else if (team === "B" && !isPlayerInTeamB) {
-      setTeamB((oldTeamB) => [...oldTeamB, player])
-      if (isPlayerInTeamA) {
-        setTeamA((oldTeamA) => oldTeamA.filter((p) => p.key !== player.key))
-      }
-    }
+      setTeamOne((oldTeam) => {
+        return {
+          ...oldTeam,
+          players: [...oldTeam.players, player],
+        }
+      })
 
-    setSelectedTeam(team)
+      if (isPlayerInTeamB) {
+        setTeamTwo((oldTeam) => {
+          return {
+            ...oldTeam,
+            players: oldTeam.players.filter((p) => p.key !== player.key),
+          }
+        })
+      }
+
+      await channelA.send({
+        type: "broadcast",
+        event: "teams",
+        payload: {
+          message: {
+            teamOne,
+            teamTwo,
+          },
+        },
+      })
+
+      return
+    } else if (team === "B" && !isPlayerInTeamB) {
+      setTeamTwo((oldTeam) => {
+        return {
+          ...oldTeam,
+          players: [...oldTeam.players, player],
+        }
+      })
+
+      if (isPlayerInTeamA) {
+        setTeamOne((oldTeam) => {
+          return {
+            ...oldTeam,
+            players: oldTeam.players.filter((p) => p.key !== player.key),
+          }
+        })
+      }
+
+      await channelA.send({
+        type: "broadcast",
+        event: "teams",
+        payload: {
+          message: {
+            teamOne,
+            teamTwo,
+          },
+        },
+      })
+    }
   }
 
   const distributePlayersRandomly = async () => {
@@ -54,26 +95,36 @@ export const TeamSelector = ({
 
     // Split the shuffled array into two halves
     const halfwayThrough = Math.ceil(shuffledPlayers.length / 2)
-    const teamAPlayers = shuffledPlayers.slice(0, halfwayThrough)
-    const teamBPlayers = shuffledPlayers.slice(halfwayThrough)
+    const teamOnePlayers = shuffledPlayers.slice(0, halfwayThrough)
+    const teamTwoPlayers = shuffledPlayers.slice(halfwayThrough)
 
     // Set team A and team B state with these halves
-    setTeamA(teamAPlayers)
-    setTeamB(teamBPlayers)
+    setTeamOne((oldTeam) => {
+      return {
+        ...oldTeam,
+        players: teamOnePlayers,
+      }
+    })
+    setTeamTwo((oldTeam) => {
+      return {
+        ...oldTeam,
+        players: teamTwoPlayers,
+      }
+    })
+
+    console.log(teamOne, teamTwo)
 
     await channelA.send({
       type: "broadcast",
       event: "teams",
       payload: {
         message: {
-          teamA: teamAPlayers,
-          teamB: teamBPlayers,
+          teamOne,
+          teamTwo,
         },
       },
     })
   }
-
-  // Inside your render method
 
   return (
     <div>

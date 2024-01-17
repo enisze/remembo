@@ -3,18 +3,32 @@ import { useEffect, useRef } from "react"
 import { type Player } from "../Game"
 import { supabase } from "../_components/supabaseClient"
 
-export type Payload = {
-  payload: { message: { teamA: Player[]; teamB: Player[] } }
+type Payload = {
+  payload: { message: { teamOne: Team; teamTwo: Team } }
   type: "broadcast"
   event: string
 }
 
-export const teamAState = atom<Player[]>([])
-export const teamBState = atom<Player[]>([])
+export type Team = {
+  players: Player[]
+  remainingTime: number
+  points: number
+}
+
+export const teamOneAtom = atom<Team>({
+  players: [],
+  remainingTime: 0,
+  points: 0,
+})
+export const teamTwoAtom = atom<Team>({
+  players: [],
+  remainingTime: 0,
+  points: 0,
+})
 
 export const TeamSubscription = ({ id }: { id: string }) => {
-  const setTeamA = useSetAtom(teamAState)
-  const setTeamB = useSetAtom(teamBState)
+  const setTeamA = useSetAtom(teamOneAtom)
+  const setTeamB = useSetAtom(teamTwoAtom)
   const test = useRef(false)
 
   const channelA = supabase.channel(id, {
@@ -24,8 +38,10 @@ export const TeamSubscription = ({ id }: { id: string }) => {
   })
 
   const messageReceived = ({ payload }: Payload) => {
-    setTeamA(payload.message.teamA)
-    setTeamB(payload.message.teamB)
+    console.log(payload)
+
+    setTeamA(payload.message.teamOne)
+    setTeamB(payload.message.teamTwo)
   }
 
   useEffect(() => {

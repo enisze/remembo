@@ -2,23 +2,12 @@ import { Button } from "@/components/ui/button"
 import { atom, useAtom, useAtomValue } from "jotai"
 import { useEffect, useMemo, useState } from "react"
 import { CurrentItemView } from "./CurrentItemView"
-import { type Player } from "./Game"
 import { NextItem } from "./NextItem"
 import { useSetNextPlayer } from "./_helpers/useSyncCurrentPlayer"
 import { cardAtom } from "./_subscriptions/AddCardsSubscription"
 import { currentPlayerAtom } from "./_subscriptions/CurrentPlayerSubscription"
 import { currentTeamAtom } from "./_subscriptions/CurrentTeamSubscription"
-
-type Team = {
-  players: Player[]
-  remainingTime: number
-  points: number
-}
-
-export const teamsAtom = atom<Team[]>([
-  { players: [], remainingTime: 0, points: 0 },
-  { players: [], remainingTime: 0, points: 0 },
-])
+import { teamOneAtom, teamTwoAtom } from "./_subscriptions/TeamSubscription"
 
 export const currentItemAtom = atom("")
 export const displayedItemsAtom = atom<string[]>([])
@@ -32,10 +21,11 @@ export const Timer = ({ id }: { id: string }) => {
   const [timerStarted, setTimerStarted] = useAtom(timerStartedAtom)
   const [timeLeft, setTimeLeft] = useState(60)
 
-  const [teams, setTeams] = useAtom(teamsAtom)
+  const [teamOne, setTeamOne] = useAtom(teamOneAtom)
+  const [teamTwo, setTeamTwo] = useAtom(teamTwoAtom)
 
-  const remainingTimeA = teams[0]?.remainingTime ?? 0
-  const remainingTimeB = teams[1]?.remainingTime ?? 0
+  const remainingTimeA = teamOne?.remainingTime ?? 0
+  const remainingTimeB = teamTwo?.remainingTime ?? 0
   const [currentPlayer] = useAtom(currentPlayerAtom)
   const [currentTeam, setCurrentTeam] = useAtom(currentTeamAtom)
 
@@ -63,19 +53,23 @@ export const Timer = ({ id }: { id: string }) => {
         setTimeLeft((prevTime) => {
           const newTime = prevTime - 1
 
-          setTeams((prevTeams) => {
-            const newTeams = [...prevTeams]
-            if (currentTeam === "A") {
-              if (newTeams[0]) {
-                newTeams[0].remainingTime = newTime
+          if (currentTeam === "A") {
+            setTeamOne((prevTeam) => {
+              if (prevTeam) {
+                return { ...prevTeam, remainingTime: newTime }
               }
-            } else {
-              if (newTeams[1]) {
-                newTeams[1].remainingTime = newTime
+              return prevTeam
+            })
+          }
+
+          if (currentTeam === "B") {
+            setTeamTwo((prevTeam) => {
+              if (prevTeam) {
+                return { ...prevTeam, remainingTime: newTime }
               }
-            }
-            return newTeams
-          })
+              return prevTeam
+            })
+          }
 
           return newTime
         })

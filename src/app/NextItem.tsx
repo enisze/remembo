@@ -1,21 +1,19 @@
 import { Button } from "@/components/ui/button"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
-import {
-  currentItemAtom,
-  currentTeamAtom,
-  displayedItemsAtom,
-  teamsAtom,
-  timerStartedAtom,
-} from "./Timer"
+import { currentItemAtom, displayedItemsAtom, timerStartedAtom } from "./Timer"
 
 import { CheckIcon, XIcon } from "lucide-react"
+import { currentTeamAtom } from "./_subscriptions/CurrentTeamSubscription"
+import { teamOneAtom, teamTwoAtom } from "./_subscriptions/TeamSubscription"
 
 export const NextItem = ({ remainingItems }: { remainingItems: string[] }) => {
   const setTimerStarted = useSetAtom(timerStartedAtom)
 
   const setDisplayedItems = useSetAtom(displayedItemsAtom)
   const setCurrentItem = useSetAtom(currentItemAtom)
-  const [teams, setTeams] = useAtom(teamsAtom)
+
+  const [teamOne, setTeamOne] = useAtom(teamOneAtom)
+  const [teamTwo, setTeamTwo] = useAtom(teamTwoAtom)
 
   const currentTeam = useAtomValue(currentTeamAtom)
 
@@ -28,13 +26,15 @@ export const NextItem = ({ remainingItems }: { remainingItems: string[] }) => {
       if (nextItem) setCurrentItem(nextItem)
 
       // Increment the score for the current team
-      const updatedTeams = teams.map((team, index) => {
-        if (index === currentTeam) {
-          return { ...team, points: team.points + 1 }
-        }
-        return team
-      })
-      setTeams(updatedTeams)
+      if (currentTeam === "A") {
+        setTeamOne((prevTeam) => {
+          return { ...prevTeam, points: prevTeam.points + 1 }
+        })
+      } else {
+        setTeamTwo((prevTeam) => {
+          return { ...prevTeam, points: prevTeam.points + 1 }
+        })
+      }
     } else {
       setTimerStarted(false)
     }
@@ -63,11 +63,9 @@ export const NextItem = ({ remainingItems }: { remainingItems: string[] }) => {
       </div>
       Current points:
       <div className="flex gap-2">
-        {teams.map((team, index) => (
-          <div key={index}>
-            Team {index + 1}: {team.points}
-          </div>
-        ))}
+        <div>Team 1: {teamOne?.points}</div>
+
+        <div>Team 2: {teamTwo?.points}</div>
       </div>
     </div>
   )

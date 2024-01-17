@@ -1,10 +1,10 @@
-import { useAtom } from "jotai"
+import { useAtom, useAtomValue } from "jotai"
 import { useCallback } from "react"
 import { type Player } from "../Game"
-import { teamsAtom } from "../Timer"
 import { supabase } from "../_components/supabaseClient"
 import { currentPlayerAtom } from "../_subscriptions/CurrentPlayerSubscription"
 import { currentTeamAtom } from "../_subscriptions/CurrentTeamSubscription"
+import { teamOneAtom, teamTwoAtom } from "../_subscriptions/TeamSubscription"
 
 function getNextPlayer(
   teamPlayers: Player[],
@@ -18,7 +18,7 @@ function getNextPlayer(
 }
 
 export const useSetNextPlayer = ({ id }: { id: string }) => {
-  const [currentTeam, setCurrentTeam] = useAtom(currentTeamAtom)
+  const currentTeam = useAtomValue(currentTeamAtom)
 
   const channelA = supabase.channel(id, {
     config: {
@@ -28,13 +28,14 @@ export const useSetNextPlayer = ({ id }: { id: string }) => {
 
   const [currentPlayer, setCurrentPlayer] = useAtom(currentPlayerAtom)
 
-  const [teams, setTeams] = useAtom(teamsAtom)
+  const teamOne = useAtomValue(teamOneAtom)
+  const teamTwo = useAtomValue(teamTwoAtom)
 
-  const teamAPlayers = teams[0]?.players ?? []
-  const teamBPlayers = teams[1]?.players ?? []
+  const teamOnePlayers = teamOne?.players ?? []
+  const teamTwoPlayers = teamTwo?.players ?? []
 
   const nextPlayer = getNextPlayer(
-    currentTeam === "B" ? teamBPlayers : teamAPlayers,
+    currentTeam === "B" ? teamTwoPlayers : teamOnePlayers,
     currentPlayer,
   )
 
