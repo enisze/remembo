@@ -112,8 +112,6 @@ export const TeamSelector = ({
       }
     })
 
-    console.log(teamOne, teamTwo)
-
     await channelA.send({
       type: "broadcast",
       event: "teams",

@@ -38,8 +38,6 @@ export const TeamSubscription = ({ id }: { id: string }) => {
   })
 
   const messageReceived = ({ payload }: Payload) => {
-    console.log(payload)
-
     setTeamOne(payload.message.teamOne)
     setTeamTwo(payload.message.teamTwo)
   }

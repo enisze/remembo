@@ -18,7 +18,6 @@ export const AddCardsSubscribe = ({ id }: { id: string }) => {
   })
 
   const messageReceived = ({ payload }: Payload) => {
-    console.log(payload)
     setCards((prevCards) => [...prevCards, ...(payload.message as string[])])
   }
 
