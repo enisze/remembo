@@ -1,7 +1,7 @@
 import { useAtomValue } from "jotai"
 import { meAtom } from "./PlayerPresence"
 import { currentItemAtom } from "./Timer"
-import { currentPlayerAtom } from "./_subscriptions/CurrentPlayerSubscription"
+import { currentPlayerAtom } from "./_subscriptions/useHandleCurrentPlayer"
 
 export const CurrentItemView = () => {
   const currentItem = useAtomValue(currentItemAtom)

@@ -3,8 +3,8 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { currentItemAtom, displayedItemsAtom, timerStartedAtom } from "./Timer"
 
 import { CheckIcon, XIcon } from "lucide-react"
-import { currentTeamAtom } from "./_subscriptions/CurrentTeamSubscription"
-import { teamOneAtom, teamTwoAtom } from "./_subscriptions/TeamSubscription"
+import { currentTeamAtom } from "./_subscriptions/useHandleCurrentTeam"
+import { teamOneAtom, teamTwoAtom } from "./_subscriptions/useHandleTeams"
 
 export const NextItem = ({ remainingItems }: { remainingItems: string[] }) => {
   const setTimerStarted = useSetAtom(timerStartedAtom)

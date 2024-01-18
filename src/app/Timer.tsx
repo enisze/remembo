@@ -4,10 +4,10 @@ import { useEffect, useMemo, useState } from "react"
 import { CurrentItemView } from "./CurrentItemView"
 import { NextItem } from "./NextItem"
 import { useSetNextPlayer } from "./_helpers/useSyncCurrentPlayer"
-import { cardAtom } from "./_subscriptions/AddCardsSubscription"
-import { currentPlayerAtom } from "./_subscriptions/CurrentPlayerSubscription"
-import { currentTeamAtom } from "./_subscriptions/CurrentTeamSubscription"
-import { teamOneAtom, teamTwoAtom } from "./_subscriptions/TeamSubscription"
+import { cardAtom } from "./_subscriptions/Subscriptions"
+import { currentPlayerAtom } from "./_subscriptions/useHandleCurrentPlayer"
+import { currentTeamAtom } from "./_subscriptions/useHandleCurrentTeam"
+import { teamOneAtom, teamTwoAtom } from "./_subscriptions/useHandleTeams"
 
 export const currentItemAtom = atom("")
 export const displayedItemsAtom = atom<string[]>([])

@@ -7,10 +7,7 @@ import { atom, useAtom, useAtomValue } from "jotai"
 import { useState } from "react"
 import { Cards, showCardAtom } from "./Cards"
 import { Game } from "./Game"
-import { AddCardsSubscribe } from "./_subscriptions/AddCardsSubscription"
-import { CurrentPlayerSubscription } from "./_subscriptions/CurrentPlayerSubscription"
-import { CurrentTeamSubscription } from "./_subscriptions/CurrentTeamSubscription"
-import { TeamSubscription } from "./_subscriptions/TeamSubscription"
+import { Subscriptions } from "./_subscriptions/Subscriptions"
 
 export const nameAtom = atom("")
 
@@ -31,10 +28,7 @@ export default function Home() {
             showCards ? "translate-y-0" : "-translate-y-96",
           )}
         >
-          <AddCardsSubscribe id={gameId} />
-          <TeamSubscription id={gameId} />
-          <CurrentPlayerSubscription id={gameId} />
-          <CurrentTeamSubscription id={gameId} />
+          <Subscriptions id={gameId} />
           <Game id={gameId} playerName={name} />
         </div>
       </div>

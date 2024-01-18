@@ -4,7 +4,7 @@ import { atom, useAtomValue } from "jotai"
 import { PlayerPresence } from "./PlayerPresence"
 import { TeamSelector } from "./TeamSelector"
 import { Timer } from "./Timer"
-import { teamOneAtom, teamTwoAtom } from "./_subscriptions/TeamSubscription"
+import { teamOneAtom, teamTwoAtom } from "./_subscriptions/useHandleTeams"
 
 export type Player = {
   key: string | undefined

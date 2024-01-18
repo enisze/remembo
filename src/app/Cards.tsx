@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
 import { atom, useAtom } from "jotai"
 import { useState } from "react"
-import { supabase } from "./_components/supabaseClient"
+import { getChannel } from "./_components/supabaseClient"
 
 export const showCardAtom = atom(true)
 
@@ -17,11 +17,7 @@ export function Cards({ id }: { id: string }) {
 
   const [showCardComponent, setShowCardComponent] = useAtom(showCardAtom)
 
-  const channelA = supabase.channel(id, {
-    config: {
-      broadcast: { self: true },
-    },
-  })
+  const channel = getChannel(id)
 
   return (
     <div
@@ -33,7 +29,7 @@ export function Cards({ id }: { id: string }) {
       <form
         onSubmit={async (e) => {
           e.preventDefault()
-          await channelA.send({
+          await channel.send({
             type: "broadcast",
             event: "cards",
             payload: {

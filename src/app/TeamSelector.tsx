@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button"
 import { useAtom, useAtomValue } from "jotai"
 import { playersAtom, type Player } from "./Game"
-import { supabase } from "./_components/supabaseClient"
-import { teamOneAtom, teamTwoAtom } from "./_subscriptions/TeamSubscription"
+import { getChannel } from "./_components/supabaseClient"
+import { teamOneAtom, teamTwoAtom } from "./_subscriptions/useHandleTeams"
 
 type Team = "A" | "B" | null
 
@@ -16,12 +16,7 @@ export const TeamSelector = ({
   const [teamOne, setTeamOne] = useAtom(teamOneAtom)
   const [teamTwo, setTeamTwo] = useAtom(teamTwoAtom)
 
-  const channelA = supabase.channel(id, {
-    config: {
-      broadcast: { self: true },
-    },
-  })
-
+  const channel = getChannel(id)
   const players = useAtomValue(playersAtom)
 
   const selectTeam = async (team: Team) => {
@@ -48,7 +43,7 @@ export const TeamSelector = ({
         setTeamTwo(newTeamTwo)
       }
 
-      await channelA.send({
+      await channel.send({
         type: "broadcast",
         event: "teams",
         payload: {
@@ -78,7 +73,7 @@ export const TeamSelector = ({
         setTeamOne(newTeamOne)
       }
 
-      await channelA.send({
+      await channel.send({
         type: "broadcast",
         event: "teams",
         payload: {
@@ -114,7 +109,7 @@ export const TeamSelector = ({
     setTeamOne(newTeamOne)
     setTeamTwo(newTeamTwo)
 
-    await channelA.send({
+    await channel.send({
       type: "broadcast",
       event: "teams",
       payload: {
