@@ -5,11 +5,11 @@ import { CurrentItemView } from "./CurrentItemView"
 import { NextItem } from "./NextItem"
 import { useSetNextPlayer } from "./_helpers/useSyncCurrentPlayer"
 import { cardAtom } from "./_subscriptions/Subscriptions"
+import { currentCardAtom } from "./_subscriptions/useHandleCurrentCard"
 import { currentPlayerAtom } from "./_subscriptions/useHandleCurrentPlayer"
 import { currentTeamAtom } from "./_subscriptions/useHandleCurrentTeam"
 import { teamOneAtom, teamTwoAtom } from "./_subscriptions/useHandleTeams"
 
-export const currentItemAtom = atom("")
 export const displayedItemsAtom = atom<string[]>([])
 export const timerStartedAtom = atom(false)
 
@@ -17,7 +17,7 @@ export const Timer = ({ id }: { id: string }) => {
   const initialCards = useAtomValue(cardAtom)
   const displayedItems = useAtomValue(displayedItemsAtom)
 
-  const [currentItem, setCurrentItem] = useAtom(currentItemAtom)
+  const [currentCard, setCurrentCard] = useAtom(currentCardAtom)
   const [timerStarted, setTimerStarted] = useAtom(timerStartedAtom)
   const [timeLeft, setTimeLeft] = useState(60)
 
@@ -74,7 +74,7 @@ export const Timer = ({ id }: { id: string }) => {
           return newTime
         })
         if (timeLeft <= 0) {
-          setCurrentItem("Over")
+          setCurrentCard("Over")
           setTimerStarted(false)
           setCurrentTeam(currentTeam === "A" ? "B" : "A")
 
@@ -91,11 +91,18 @@ export const Timer = ({ id }: { id: string }) => {
 
   return (
     <div>
-      <h1>Its your turn</h1>
-      <div>{currentPlayer?.name}</div>
-      <h1>Timer</h1>
-      <p>Time left: {timeLeft}</p>
-      <CurrentItemView />
+      <div className="flex gap-2 rounded-md border border-solid p-3">
+        <h1>Its your turn</h1>
+        <div>{currentPlayer?.name}</div>
+        <h2>Current Card</h2>
+        <div>{currentCard}</div>
+      </div>
+
+      <div className="flex gap-2 rounded-md border border-solid p-3">
+        <h1>Timer</h1>
+        <p>Time left: {timeLeft}</p>
+        <CurrentItemView />
+      </div>
 
       {timeLeft <= 0 ||
         (displayedItems.length === initialCards.length && (
@@ -111,11 +118,12 @@ export const Timer = ({ id }: { id: string }) => {
 
             const card = remainingCards[0]
             if (card) {
-              setCurrentItem(card)
+              setCurrentCard(card)
               await setNextPlayer()
             }
           }
         }}
+        variant="outline"
       >
         Start
       </Button>

@@ -1,4 +1,4 @@
-import { useAtom, useAtomValue } from "jotai"
+import { useAtomValue } from "jotai"
 import { useCallback } from "react"
 import { type Player } from "../Game"
 import { getChannel } from "../_components/supabaseClient"
@@ -22,7 +22,7 @@ export const useSetNextPlayer = ({ id }: { id: string }) => {
 
   const channel = getChannel(id)
 
-  const [currentPlayer, setCurrentPlayer] = useAtom(currentPlayerAtom)
+  const currentPlayer = useAtomValue(currentPlayerAtom)
 
   const teamOne = useAtomValue(teamOneAtom)
   const teamTwo = useAtomValue(teamTwoAtom)
@@ -36,7 +36,6 @@ export const useSetNextPlayer = ({ id }: { id: string }) => {
   )
 
   const setNextPlayer = useCallback(async () => {
-    setCurrentPlayer(nextPlayer)
     await channel.send({
       type: "broadcast",
       event: "currentPlayer",

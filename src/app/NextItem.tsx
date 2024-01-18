@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
-import { currentItemAtom, displayedItemsAtom, timerStartedAtom } from "./Timer"
+import { displayedItemsAtom, timerStartedAtom } from "./Timer"
 
 import { CheckIcon, XIcon } from "lucide-react"
+import { currentCardAtom } from "./_subscriptions/useHandleCurrentCard"
 import { currentTeamAtom } from "./_subscriptions/useHandleCurrentTeam"
 import { teamOneAtom, teamTwoAtom } from "./_subscriptions/useHandleTeams"
 
@@ -10,7 +11,7 @@ export const NextItem = ({ remainingItems }: { remainingItems: string[] }) => {
   const setTimerStarted = useSetAtom(timerStartedAtom)
 
   const setDisplayedItems = useSetAtom(displayedItemsAtom)
-  const setCurrentItem = useSetAtom(currentItemAtom)
+  const setCurrentCard = useSetAtom(currentCardAtom)
 
   const [teamOne, setTeamOne] = useAtom(teamOneAtom)
   const [teamTwo, setTeamTwo] = useAtom(teamTwoAtom)
@@ -23,7 +24,7 @@ export const NextItem = ({ remainingItems }: { remainingItems: string[] }) => {
         remainingItems[Math.floor(Math.random() * remainingItems.length)]
       setDisplayedItems((prevItems) => [...prevItems, nextItem!])
 
-      if (nextItem) setCurrentItem(nextItem)
+      if (nextItem) setCurrentCard(nextItem)
 
       // Increment the score for the current team
       if (currentTeam === "A") {
@@ -44,7 +45,7 @@ export const NextItem = ({ remainingItems }: { remainingItems: string[] }) => {
     if (remainingItems.length > 0) {
       const nextItem =
         remainingItems[Math.floor(Math.random() * remainingItems.length)]
-      if (nextItem) setCurrentItem(nextItem)
+      if (nextItem) setCurrentCard(nextItem)
     } else {
       setTimerStarted(false)
     }

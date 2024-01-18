@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { useAtom, useAtomValue } from "jotai"
+import { useAtomValue } from "jotai"
 import { playersAtom, type Player } from "./Game"
 import { getChannel } from "./_components/supabaseClient"
 import { teamOneAtom, teamTwoAtom } from "./_subscriptions/useHandleTeams"
@@ -13,8 +13,8 @@ export const TeamSelector = ({
   player: Player | undefined
   id: string
 }) => {
-  const [teamOne, setTeamOne] = useAtom(teamOneAtom)
-  const [teamTwo, setTeamTwo] = useAtom(teamTwoAtom)
+  const teamOne = useAtomValue(teamOneAtom)
+  const teamTwo = useAtomValue(teamTwoAtom)
 
   const channel = getChannel(id)
   const players = useAtomValue(playersAtom)
@@ -31,8 +31,6 @@ export const TeamSelector = ({
         players: [...teamOne.players, player],
       }
 
-      setTeamOne(newTeamOne)
-
       let newTeamTwo = teamTwo
 
       if (isPlayerInTeamB) {
@@ -40,12 +38,11 @@ export const TeamSelector = ({
           ...teamTwo,
           players: teamTwo.players.filter((p) => p.key !== player.key),
         }
-        setTeamTwo(newTeamTwo)
       }
 
       await channel.send({
         type: "broadcast",
-        event: "teams",
+        event: "teamPlayers",
         payload: {
           message: {
             teamOne: newTeamOne,
@@ -61,21 +58,17 @@ export const TeamSelector = ({
         players: [...teamTwo.players, player],
       }
 
-      setTeamTwo(newTeamTwo)
-
       let newTeamOne = teamOne
       if (isPlayerInTeamA) {
         newTeamOne = {
           ...teamOne,
           players: teamOne.players.filter((p) => p.key !== player.key),
         }
-
-        setTeamOne(newTeamOne)
       }
 
       await channel.send({
         type: "broadcast",
-        event: "teams",
+        event: "teamPlayers",
         payload: {
           message: {
             teamOne: newTeamOne,
@@ -105,13 +98,9 @@ export const TeamSelector = ({
       players: teamTwoPlayers,
     }
 
-    // Set team A and team B state with these halves
-    setTeamOne(newTeamOne)
-    setTeamTwo(newTeamTwo)
-
     await channel.send({
       type: "broadcast",
-      event: "teams",
+      event: "teamPlayers",
       payload: {
         message: {
           teamOne: newTeamOne,

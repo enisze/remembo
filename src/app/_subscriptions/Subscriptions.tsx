@@ -1,4 +1,4 @@
-import { atom, useSetAtom } from "jotai"
+import { atom } from "jotai"
 import { useEffect, useRef } from "react"
 import { getChannel, supabase } from "../_components/supabaseClient"
 import { useHandleCards } from "./useHandleCards"
@@ -9,11 +9,10 @@ import { useHandleTeams } from "./useHandleTeams"
 export type Payload = {
   payload: unknown
   type: "broadcast"
-  event: "card" | "teams" | "currentPlayer" | "currentTeam"
+  event: "card" | "teamPlayers" | "currentPlayer" | "currentTeam"
 }
 export const cardAtom = atom<string[]>([])
 export const Subscriptions = ({ id }: { id: string }) => {
-  const setCards = useSetAtom(cardAtom)
   const called = useRef(false)
   const channel = getChannel(id)
 
@@ -34,7 +33,7 @@ export const Subscriptions = ({ id }: { id: string }) => {
       handleCurrentPlayer(payload)
     }
 
-    if (event === "teams") {
+    if (event === "teamPlayers") {
       handleTeams(payload)
     }
   }
