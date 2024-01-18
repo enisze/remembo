@@ -10,7 +10,7 @@ import { useHandleTimer } from "./useHandleTimer"
 export type Payload = {
   payload: unknown
   type: "broadcast"
-  event: "card" | "teams" | "currentPlayer" | "currentTeam" | "timer"
+  event: "cards" | "teams" | "currentPlayer" | "currentTeam" | "timer"
 }
 export const cardAtom = atom<string[]>([])
 export const Subscriptions = ({ id }: { id: string }) => {
@@ -24,7 +24,7 @@ export const Subscriptions = ({ id }: { id: string }) => {
   const handleTimer = useHandleTimer()
 
   const messageReceived = ({ payload, event }: Payload) => {
-    if (event === "card") {
+    if (event === "cards") {
       handleCardsSubscription(payload)
     }
     if (event === "currentTeam") {
