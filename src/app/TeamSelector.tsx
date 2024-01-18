@@ -42,7 +42,7 @@ export const TeamSelector = ({
 
       await channel.send({
         type: "broadcast",
-        event: "teamPlayers",
+        event: "teams",
         payload: {
           message: {
             teamOne: newTeamOne,
@@ -68,7 +68,7 @@ export const TeamSelector = ({
 
       await channel.send({
         type: "broadcast",
-        event: "teamPlayers",
+        event: "teams",
         payload: {
           message: {
             teamOne: newTeamOne,
@@ -100,7 +100,7 @@ export const TeamSelector = ({
 
     await channel.send({
       type: "broadcast",
-      event: "teamPlayers",
+      event: "teams",
       payload: {
         message: {
           teamOne: newTeamOne,

@@ -1,14 +1,16 @@
 import { Button } from "@/components/ui/button"
 import { atom, useAtom, useAtomValue } from "jotai"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo } from "react"
 import { CurrentItemView } from "./CurrentItemView"
 import { NextItem } from "./NextItem"
+import { getChannel } from "./_components/supabaseClient"
 import { useSetNextPlayer } from "./_helpers/useSyncCurrentPlayer"
 import { cardAtom } from "./_subscriptions/Subscriptions"
 import { currentCardAtom } from "./_subscriptions/useHandleCurrentCard"
 import { currentPlayerAtom } from "./_subscriptions/useHandleCurrentPlayer"
 import { currentTeamAtom } from "./_subscriptions/useHandleCurrentTeam"
-import { teamOneAtom, teamTwoAtom } from "./_subscriptions/useHandleTeams"
+import { Team, teamOneAtom, teamTwoAtom } from "./_subscriptions/useHandleTeams"
+import { timerAtom } from "./_subscriptions/useHandleTimer"
 
 export const displayedItemsAtom = atom<string[]>([])
 export const timerStartedAtom = atom(false)
@@ -19,7 +21,7 @@ export const Timer = ({ id }: { id: string }) => {
 
   const [currentCard, setCurrentCard] = useAtom(currentCardAtom)
   const [timerStarted, setTimerStarted] = useAtom(timerStartedAtom)
-  const [timeLeft, setTimeLeft] = useState(60)
+  const timeLeft = useAtomValue(timerAtom)
 
   const [teamOne, setTeamOne] = useAtom(teamOneAtom)
   const [teamTwo, setTeamTwo] = useAtom(teamTwoAtom)
@@ -27,9 +29,11 @@ export const Timer = ({ id }: { id: string }) => {
   const remainingTimeA = teamOne?.remainingTime ?? 0
   const remainingTimeB = teamTwo?.remainingTime ?? 0
   const [currentPlayer] = useAtom(currentPlayerAtom)
-  const [currentTeam, setCurrentTeam] = useAtom(currentTeamAtom)
+  const currentTeam = useAtomValue(currentTeamAtom)
 
   const setNextPlayer = useSetNextPlayer({ id })
+
+  const channel = getChannel(id)
 
   const remainingCards = useMemo(
     () => initialCards.filter((item) => !displayedItems.includes(item)),
@@ -37,10 +41,34 @@ export const Timer = ({ id }: { id: string }) => {
   )
 
   const handleNextPlayer = async () => {
-    const remainingTime = currentTeam === "A" ? remainingTimeA : remainingTimeB
-    setTimeLeft(60 + remainingTime)
+    const newTeamOne: Team = {
+      ...teamOne,
+      remainingTime: currentTeam === "A" ? remainingTimeA + 60 : remainingTimeA,
+    }
 
-    setCurrentTeam(currentTeam === "A" ? "B" : "A")
+    const newTeamTwo: Team = {
+      ...teamOne,
+      remainingTime: currentTeam === "B" ? remainingTimeB + 60 : remainingTimeB,
+    }
+
+    await channel.send({
+      type: "broadcast",
+      event: "teams",
+      payload: {
+        message: {
+          teamOne: newTeamOne,
+          teamTwo: newTeamTwo,
+        },
+      },
+    })
+
+    await channel.send({
+      type: "broadcast",
+      event: "currentTeam",
+      payload: {
+        message: currentTeam === "A" ? "B" : "A",
+      },
+    })
 
     await setNextPlayer()
   }
@@ -49,34 +77,39 @@ export const Timer = ({ id }: { id: string }) => {
     let timer: NodeJS.Timeout | null = null
     if (timerStarted) {
       timer = setInterval(() => {
-        console.log("running timer")
-        setTimeLeft((prevTime) => {
-          const newTime = prevTime - 1
+        const newTime = timeLeft - 1
 
-          if (currentTeam === "A") {
-            setTeamOne((prevTeam) => {
-              if (prevTeam) {
-                return { ...prevTeam, remainingTime: newTime }
-              }
-              return prevTeam
-            })
-          }
+        void (async () => {
+          await channel.send({
+            type: "broadcast",
+            event: "timer",
+            payload: {
+              message: newTime,
+            },
+          })
+        })()
 
-          if (currentTeam === "B") {
-            setTeamTwo((prevTeam) => {
-              if (prevTeam) {
-                return { ...prevTeam, remainingTime: newTime }
-              }
-              return prevTeam
-            })
-          }
-
-          return newTime
-        })
         if (timeLeft <= 0) {
-          setCurrentCard("Over")
+          void (async () => {
+            await channel.send({
+              type: "broadcast",
+              event: "currentCard",
+              payload: {
+                message: "Over",
+              },
+            })
+          })()
           setTimerStarted(false)
-          setCurrentTeam(currentTeam === "A" ? "B" : "A")
+
+          void (async () => {
+            await channel.send({
+              type: "broadcast",
+              event: "currentTeam",
+              payload: {
+                message: currentTeam === "A" ? "B" : "A",
+              },
+            })
+          })()
 
           void (async () => {
             await setNextPlayer()
@@ -128,7 +161,7 @@ export const Timer = ({ id }: { id: string }) => {
         Start
       </Button>
 
-      <NextItem remainingItems={remainingCards} />
+      <NextItem remainingItems={remainingCards} id={id} />
     </div>
   )
 }

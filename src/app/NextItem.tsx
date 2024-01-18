@@ -1,51 +1,98 @@
 import { Button } from "@/components/ui/button"
-import { useAtom, useAtomValue, useSetAtom } from "jotai"
+import { useAtomValue, useSetAtom } from "jotai"
 import { displayedItemsAtom, timerStartedAtom } from "./Timer"
 
 import { CheckIcon, XIcon } from "lucide-react"
-import { currentCardAtom } from "./_subscriptions/useHandleCurrentCard"
+import { getChannel } from "./_components/supabaseClient"
 import { currentTeamAtom } from "./_subscriptions/useHandleCurrentTeam"
-import { teamOneAtom, teamTwoAtom } from "./_subscriptions/useHandleTeams"
+import {
+  teamOneAtom,
+  teamTwoAtom,
+  type Team,
+} from "./_subscriptions/useHandleTeams"
 
-export const NextItem = ({ remainingItems }: { remainingItems: string[] }) => {
+export const NextItem = ({
+  remainingItems,
+  id,
+}: {
+  remainingItems: string[]
+  id: string
+}) => {
   const setTimerStarted = useSetAtom(timerStartedAtom)
 
   const setDisplayedItems = useSetAtom(displayedItemsAtom)
-  const setCurrentCard = useSetAtom(currentCardAtom)
 
-  const [teamOne, setTeamOne] = useAtom(teamOneAtom)
-  const [teamTwo, setTeamTwo] = useAtom(teamTwoAtom)
+  const teamOne = useAtomValue(teamOneAtom)
+  const teamTwo = useAtomValue(teamTwoAtom)
 
   const currentTeam = useAtomValue(currentTeamAtom)
 
-  const handleCheckClick = () => {
+  const channel = getChannel(id)
+
+  const handleCheckClick = async () => {
     if (remainingItems.length > 0) {
       const nextItem =
         remainingItems[Math.floor(Math.random() * remainingItems.length)]
       setDisplayedItems((prevItems) => [...prevItems, nextItem!])
 
-      if (nextItem) setCurrentCard(nextItem)
-
-      // Increment the score for the current team
-      if (currentTeam === "A") {
-        setTeamOne((prevTeam) => {
-          return { ...prevTeam, points: prevTeam.points + 1 }
-        })
-      } else {
-        setTeamTwo((prevTeam) => {
-          return { ...prevTeam, points: prevTeam.points + 1 }
+      if (nextItem) {
+        await channel.send({
+          type: "broadcast",
+          event: "currentTeam",
+          payload: {
+            message: currentTeam === "A" ? "B" : "A",
+          },
         })
       }
+
+      // Increment the score for the current team
+
+      const newTeamOne: Team = {
+        ...teamOne,
+        points: currentTeam === "A" ? teamOne.points + 1 : teamOne.points,
+      }
+
+      const newTeamTwo: Team = {
+        ...teamOne,
+        points: currentTeam === "B" ? teamTwo.points + 1 : teamTwo.points,
+      }
+
+      await channel.send({
+        type: "broadcast",
+        event: "teams",
+        payload: {
+          message: {
+            teamOne: newTeamOne,
+            teamTwo: newTeamTwo,
+          },
+        },
+      })
+
+      await channel.send({
+        type: "broadcast",
+        event: "currentTeam",
+        payload: {
+          message: currentTeam === "A" ? "B" : "A",
+        },
+      })
     } else {
       setTimerStarted(false)
     }
   }
 
-  const handleXClick = () => {
+  const handleXClick = async () => {
     if (remainingItems.length > 0) {
       const nextItem =
         remainingItems[Math.floor(Math.random() * remainingItems.length)]
-      if (nextItem) setCurrentCard(nextItem)
+      if (nextItem) {
+        await channel.send({
+          type: "broadcast",
+          event: "currentCard",
+          payload: {
+            message: nextItem,
+          },
+        })
+      }
     } else {
       setTimerStarted(false)
     }
