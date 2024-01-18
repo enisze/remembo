@@ -9,22 +9,26 @@ import { cardAtom } from "./_subscriptions/Subscriptions"
 import { currentCardAtom } from "./_subscriptions/useHandleCurrentCard"
 import { currentPlayerAtom } from "./_subscriptions/useHandleCurrentPlayer"
 import { currentTeamAtom } from "./_subscriptions/useHandleCurrentTeam"
-import { Team, teamOneAtom, teamTwoAtom } from "./_subscriptions/useHandleTeams"
+import {
+  teamOneAtom,
+  teamTwoAtom,
+  type Team,
+} from "./_subscriptions/useHandleTeams"
 import { timerAtom } from "./_subscriptions/useHandleTimer"
 
-export const displayedItemsAtom = atom<string[]>([])
+export const displayedCardsAtom = atom<string[]>([])
 export const timerStartedAtom = atom(false)
 
 export const Timer = ({ id }: { id: string }) => {
   const initialCards = useAtomValue(cardAtom)
-  const displayedItems = useAtomValue(displayedItemsAtom)
+  const displayedCards = useAtomValue(displayedCardsAtom)
 
-  const [currentCard, setCurrentCard] = useAtom(currentCardAtom)
+  const currentCard = useAtomValue(currentCardAtom)
   const [timerStarted, setTimerStarted] = useAtom(timerStartedAtom)
   const timeLeft = useAtomValue(timerAtom)
 
-  const [teamOne, setTeamOne] = useAtom(teamOneAtom)
-  const [teamTwo, setTeamTwo] = useAtom(teamTwoAtom)
+  const teamOne = useAtomValue(teamOneAtom)
+  const teamTwo = useAtomValue(teamTwoAtom)
 
   const remainingTimeA = teamOne?.remainingTime ?? 0
   const remainingTimeB = teamTwo?.remainingTime ?? 0
@@ -36,8 +40,8 @@ export const Timer = ({ id }: { id: string }) => {
   const channel = getChannel(id)
 
   const remainingCards = useMemo(
-    () => initialCards.filter((item) => !displayedItems.includes(item)),
-    [initialCards, displayedItems],
+    () => initialCards.filter((item) => !displayedCards.includes(item)),
+    [initialCards, displayedCards],
   )
 
   const handleNextPlayer = async () => {
@@ -138,7 +142,7 @@ export const Timer = ({ id }: { id: string }) => {
       </div>
 
       {timeLeft <= 0 ||
-        (displayedItems.length === initialCards.length && (
+        (displayedCards.length === initialCards.length && (
           <Button variant="outline" onClick={handleNextPlayer}>
             Next player
           </Button>
@@ -146,12 +150,19 @@ export const Timer = ({ id }: { id: string }) => {
 
       <Button
         onClick={async () => {
+          console.log(remainingCards.length)
           if (remainingCards.length > 0) {
             setTimerStarted(true)
 
             const card = remainingCards[0]
             if (card) {
-              setCurrentCard(card)
+              await channel.send({
+                type: "broadcast",
+                event: "currentCard",
+                payload: {
+                  message: card,
+                },
+              })
               await setNextPlayer()
             }
           }

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { useAtomValue, useSetAtom } from "jotai"
-import { displayedItemsAtom, timerStartedAtom } from "./Timer"
+import { displayedCardsAtom, timerStartedAtom } from "./Timer"
 
 import { CheckIcon, XIcon } from "lucide-react"
 import { getChannel } from "./_components/supabaseClient"
@@ -20,7 +20,7 @@ export const NextItem = ({
 }) => {
   const setTimerStarted = useSetAtom(timerStartedAtom)
 
-  const setDisplayedItems = useSetAtom(displayedItemsAtom)
+  const setDisplayedItems = useSetAtom(displayedCardsAtom)
 
   const teamOne = useAtomValue(teamOneAtom)
   const teamTwo = useAtomValue(teamTwoAtom)
