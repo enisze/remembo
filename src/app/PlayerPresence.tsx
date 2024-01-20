@@ -1,4 +1,4 @@
-import { atom, useAtom, useAtomValue } from "jotai"
+import { atom, useAtom, useAtomValue, useSetAtom } from "jotai"
 import { useEffect, useRef } from "react"
 import { playersAtom, type Player } from "./Game"
 import { supabase } from "./_components/supabaseClient"
@@ -14,21 +14,16 @@ export const PlayerPresence = ({
   playerName: string
 }) => {
   const [players, setPlayers] = useAtom(playersAtom)
-  const [me, setMe] = useAtom(meAtom)
+  const setMe = useSetAtom(meAtom)
 
   const name = useAtomValue(nameAtom)
 
-  const test = useRef(false)
+  const subscribed = useRef(false)
 
   const presence = supabase.channel("presence")
 
-  const userStatus = {
-    user: playerName,
-    online_at: new Date().toISOString(),
-  }
-
   useEffect(() => {
-    if (test.current) return
+    if (subscribed.current) return
 
     presence
       .on("presence", { event: "join" }, ({ key, newPresences }) => {
@@ -51,11 +46,14 @@ export const PlayerPresence = ({
         setPlayers((prev) => prev.filter((p) => p.key !== user?.presence_ref))
       })
       .subscribe(() => {
-        void presence.track(userStatus)
+        void presence.track({
+          user: playerName,
+          online_at: new Date().toISOString(),
+        })
       })
 
-    test.current = true
-  }, [])
+    subscribed.current = true
+  }, [id, name, playerName, presence, setMe, setPlayers, subscribed])
 
   return (
     <>
