@@ -6,7 +6,6 @@ import { NextItem } from "./NextItem"
 import { getChannel } from "./_components/supabaseClient"
 import { useSetNextPlayer } from "./_helpers/useSyncCurrentPlayer"
 import { cardAtom } from "./_subscriptions/Subscriptions"
-import { currentCardAtom } from "./_subscriptions/useHandleCurrentCard"
 import { currentPlayerAtom } from "./_subscriptions/useHandleCurrentPlayer"
 import { currentTeamAtom } from "./_subscriptions/useHandleCurrentTeam"
 import {
@@ -23,7 +22,6 @@ export const Timer = ({ id }: { id: string }) => {
   const initialCards = useAtomValue(cardAtom)
   const displayedCards = useAtomValue(displayedCardsAtom)
 
-  const currentCard = useAtomValue(currentCardAtom)
   const [timerStarted, setTimerStarted] = useAtom(timerStartedAtom)
   const timeLeft = useAtomValue(timerAtom)
 
@@ -138,8 +136,6 @@ export const Timer = ({ id }: { id: string }) => {
       <div className="flex gap-2 rounded-md border border-solid p-3">
         <h1>Its your turn</h1>
         <div>{currentPlayer?.name}</div>
-        <h2>Current Card</h2>
-        <div>{currentCard}</div>
       </div>
 
       <div className="flex gap-2 rounded-md border border-solid p-3">

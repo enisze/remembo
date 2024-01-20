@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { useAtom, useAtomValue, useSetAtom } from "jotai"
+import { useAtomValue, useSetAtom } from "jotai"
 import { displayedCardsAtom, timerStartedAtom } from "./Timer"
 
 import { CheckIcon, XIcon } from "lucide-react"
@@ -16,7 +16,7 @@ import {
 export const NextItem = ({ id }: { id: string }) => {
   const setTimerStarted = useSetAtom(timerStartedAtom)
   const initialCards = useAtomValue(cardAtom)
-  const [displayedCards, setDisplayedItems] = useAtom(displayedCardsAtom)
+  const displayedCards = useAtomValue(displayedCardsAtom)
 
   const teamOne = useAtomValue(teamOneAtom)
   const teamTwo = useAtomValue(teamTwoAtom)
@@ -54,8 +54,6 @@ export const NextItem = ({ id }: { id: string }) => {
 
       const nextItem = getNextCard(remainingCards)
 
-      setDisplayedItems((prevItems) => [...prevItems, nextItem!])
-
       await channel.send({
         type: "broadcast",
         event: "currentCard",
@@ -71,7 +69,6 @@ export const NextItem = ({ id }: { id: string }) => {
     displayedCards,
     channel,
     setTimerStarted,
-    setDisplayedItems,
     currentTeam,
     teamOne,
     teamTwo,
