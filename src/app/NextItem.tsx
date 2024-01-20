@@ -6,13 +6,9 @@ import { useCallback } from "react"
 import { timerStartedAtom } from "./CurrentPlayerView"
 import { getChannel } from "./_components/supabaseClient"
 import { cardAtom } from "./_subscriptions/Subscriptions"
+import { currentCardAtom } from "./_subscriptions/useHandleCurrentCard"
 import { currentTeamAtom } from "./_subscriptions/useHandleCurrentTeam"
 import { displayedCardsAtom } from "./_subscriptions/useHandleDisplayedCards"
-import {
-  teamOneAtom,
-  teamTwoAtom,
-  type Team,
-} from "./_subscriptions/useHandleTeams"
 import { gameIdAtom } from "./page"
 
 export const NextItem = () => {
@@ -20,10 +16,9 @@ export const NextItem = () => {
   const initialCards = useAtomValue(cardAtom)
   const displayedCards = useAtomValue(displayedCardsAtom)
 
-  const id = useAtomValue(gameIdAtom)
+  const currentCard = useAtomValue(currentCardAtom)
 
-  const teamOne = useAtomValue(teamOneAtom)
-  const teamTwo = useAtomValue(teamTwoAtom)
+  const id = useAtomValue(gameIdAtom)
 
   const currentTeam = useAtomValue(currentTeamAtom)
 
@@ -34,40 +29,24 @@ export const NextItem = () => {
       (item) => !displayedCards.includes(item),
     )
 
-    const newTeamOne: Team = {
-      ...teamOne,
-      points: currentTeam === "A" ? teamOne.points + 1 : teamOne.points,
-    }
-
-    const newTeamTwo: Team = {
-      ...teamTwo,
-      points: currentTeam === "B" ? teamTwo.points + 1 : teamTwo.points,
-    }
-
-    if (remainingCards.length === 0) {
-      await channel.send({
-        type: "broadcast",
-        event: "teams",
-        payload: {
-          message: {
-            teamOne: newTeamOne,
-            teamTwo: newTeamTwo,
-          },
-        },
-      })
-    }
-
     if (remainingCards.length > 0) {
       const nextItem = getNextCard(remainingCards)
 
       await channel.send({
         type: "broadcast",
-        event: "teams",
+        event: "points",
         payload: {
           message: {
-            teamOne: newTeamOne,
-            teamTwo: newTeamTwo,
+            team: currentTeam,
           },
+        },
+      })
+
+      await channel.send({
+        type: "broadcast",
+        event: "displayedCards",
+        payload: {
+          message: currentCard,
         },
       })
 
@@ -83,12 +62,11 @@ export const NextItem = () => {
     }
   }, [
     initialCards,
+    currentCard,
     displayedCards,
     channel,
     setTimerStarted,
     currentTeam,
-    teamOne,
-    teamTwo,
   ])
 
   const handleXClick = useCallback(async () => {
