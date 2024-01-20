@@ -1,4 +1,4 @@
-import { atom, useAtom, useAtomValue, useSetAtom } from "jotai"
+import { atom, useAtom, useAtomValue } from "jotai"
 import { useEffect, useRef } from "react"
 import { playersAtom, type Player } from "./Game"
 import { supabase } from "./_components/supabaseClient"
@@ -14,7 +14,7 @@ export const PlayerPresence = ({
   playerName: string
 }) => {
   const [players, setPlayers] = useAtom(playersAtom)
-  const setMe = useSetAtom(meAtom)
+  const [me, setMe] = useAtom(meAtom)
 
   const name = useAtomValue(nameAtom)
 
@@ -31,10 +31,12 @@ export const PlayerPresence = ({
 
         const myself = newPresences.find((p) => (p?.user as string) === name)
 
-        setMe({
-          key: myself?.presence_ref,
-          name: myself?.user as string,
-        })
+        if (!me && myself) {
+          setMe({
+            key: myself?.presence_ref,
+            name: myself?.user as string,
+          })
+        }
 
         setPlayers((prev) => [
           ...prev,
@@ -53,7 +55,7 @@ export const PlayerPresence = ({
       })
 
     subscribed.current = true
-  }, [id, name, playerName, presence, setMe, setPlayers, subscribed])
+  }, [id, name, playerName, presence, setMe, setPlayers, me, subscribed])
 
   return (
     <>
