@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button"
 import { atom, useAtom, useAtomValue } from "jotai"
-import { useEffect, useMemo } from "react"
+import { useCallback, useEffect, useMemo } from "react"
 import { CurrentItemView } from "./CurrentItemView"
 import { NextItem } from "./NextItem"
 import { getChannel } from "./_components/supabaseClient"
 import { useSetNextPlayer } from "./_helpers/useSyncCurrentPlayer"
 import { cardAtom } from "./_subscriptions/Subscriptions"
+import { displayedCardsAtom } from "./_subscriptions/useHandleCurrentCard"
 import { currentPlayerAtom } from "./_subscriptions/useHandleCurrentPlayer"
 import { currentTeamAtom } from "./_subscriptions/useHandleCurrentTeam"
 import {
@@ -15,7 +16,6 @@ import {
 } from "./_subscriptions/useHandleTeams"
 import { timerAtom } from "./_subscriptions/useHandleTimer"
 
-export const displayedCardsAtom = atom<string[]>([])
 export const timerStartedAtom = atom(false)
 
 export const Timer = ({ id }: { id: string }) => {
@@ -28,8 +28,6 @@ export const Timer = ({ id }: { id: string }) => {
   const teamOne = useAtomValue(teamOneAtom)
   const teamTwo = useAtomValue(teamTwoAtom)
 
-  const remainingTimeA = useMemo(() => teamOne?.remainingTime ?? 0, [teamOne])
-  const remainingTimeB = useMemo(() => teamTwo?.remainingTime ?? 0, [teamTwo])
   const [currentPlayer] = useAtom(currentPlayerAtom)
   const currentTeam = useAtomValue(currentTeamAtom)
 
@@ -42,14 +40,16 @@ export const Timer = ({ id }: { id: string }) => {
 
   const channel = getChannel(id)
 
-  const handleNextPlayer = async () => {
+  const handleNextPlayer = useCallback(async () => {
+    const remainingTimeA = teamOne.remainingTime ?? 0
+    const remainingTimeB = teamTwo.remainingTime ?? 0
     const newTeamOne: Team = {
       ...teamOne,
       remainingTime: currentTeam === "A" ? remainingTimeA + 60 : remainingTimeA,
     }
 
     const newTeamTwo: Team = {
-      ...teamOne,
+      ...teamTwo,
       remainingTime: currentTeam === "B" ? remainingTimeB + 60 : remainingTimeB,
     }
 
@@ -73,7 +73,7 @@ export const Timer = ({ id }: { id: string }) => {
     })
 
     await setNextPlayer()
-  }
+  }, [channel, currentTeam, setNextPlayer, teamOne, teamTwo])
 
   useEffect(() => {
     let timer: NodeJS.Timeout | null = null

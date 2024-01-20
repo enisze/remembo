@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button"
 import { useAtomValue, useSetAtom } from "jotai"
-import { displayedCardsAtom, timerStartedAtom } from "./Timer"
+import { timerStartedAtom } from "./Timer"
 
 import { CheckIcon, XIcon } from "lucide-react"
 import { useCallback } from "react"
 import { getChannel } from "./_components/supabaseClient"
 import { cardAtom } from "./_subscriptions/Subscriptions"
+import { displayedCardsAtom } from "./_subscriptions/useHandleCurrentCard"
 import { currentTeamAtom } from "./_subscriptions/useHandleCurrentTeam"
 import {
   teamOneAtom,
