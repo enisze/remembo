@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { useAtomValue } from "jotai"
 import { useCallback } from "react"
-import { MeView, timerStartedAtom } from "./CurrentItemView"
-import { NextItem } from "./NextItem"
+import { CurrentPlayerView, timerStartedAtom } from "./CurrentPlayerView"
 import { getChannel } from "./_components/supabaseClient"
 import { useSetNextPlayer } from "./_helpers/useSyncCurrentPlayer"
 import { currentPlayerAtom } from "./_subscriptions/useHandleCurrentPlayer"
@@ -90,20 +89,17 @@ export const Timer = () => {
         <h1>Its your turn</h1>
         <div>{currentPlayer?.name}</div>
       </div>
-
       <div className="flex gap-2 rounded-md border border-solid p-3">
         <h1>Timer</h1>
         <p>Time left: {timeLeft}</p>
-        <MeView />
+        <CurrentPlayerView />
       </div>
-
       {timeLeft <= 0 ||
         (!timerStarted && (
           <Button variant="outline" onClick={handleNextPlayer}>
             Next player
           </Button>
         ))}
-
       <Button
         onClick={async () => {
           await setNextPlayer()
@@ -112,8 +108,14 @@ export const Timer = () => {
       >
         Choose Player
       </Button>
+      <div>
+        Current points:
+        <div className="flex gap-2">
+          <div>Team 1: {teamOne?.points}</div>
 
-      <NextItem id={id} />
+          <div>Team 2: {teamTwo?.points}</div>
+        </div>
+      </div>
     </div>
   )
 }

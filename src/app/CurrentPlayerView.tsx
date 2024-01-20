@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { atom, useAtom, useAtomValue } from "jotai"
 import { useEffect, useMemo } from "react"
+import { NextItem } from "./NextItem"
 import { meAtom } from "./PlayerPresence"
 import { getChannel } from "./_components/supabaseClient"
 import { useSetNextPlayer } from "./_helpers/useSyncCurrentPlayer"
@@ -14,7 +15,7 @@ import { gameIdAtom } from "./page"
 
 export const timerStartedAtom = atom(false)
 
-export const MeView = () => {
+export const CurrentPlayerView = () => {
   const currentCard = useAtomValue(currentCardAtom)
   const currentPlayer = useAtomValue(currentPlayerAtom)
   const me = useAtomValue(meAtom)
@@ -120,6 +121,8 @@ export const MeView = () => {
         Start
       </Button>
       <p className="text-md font-bold">{currentCard}</p>
+
+      <NextItem />
     </div>
   )
 }

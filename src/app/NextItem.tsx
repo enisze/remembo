@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button"
 import { useAtomValue, useSetAtom } from "jotai"
-import { timerStartedAtom } from "./Timer"
 
 import { CheckIcon, XIcon } from "lucide-react"
 import { useCallback } from "react"
+import { timerStartedAtom } from "./CurrentPlayerView"
 import { getChannel } from "./_components/supabaseClient"
 import { cardAtom } from "./_subscriptions/Subscriptions"
 import { currentTeamAtom } from "./_subscriptions/useHandleCurrentTeam"
@@ -13,11 +13,14 @@ import {
   teamTwoAtom,
   type Team,
 } from "./_subscriptions/useHandleTeams"
+import { gameIdAtom } from "./page"
 
-export const NextItem = ({ id }: { id: string }) => {
+export const NextItem = () => {
   const setTimerStarted = useSetAtom(timerStartedAtom)
   const initialCards = useAtomValue(cardAtom)
   const displayedCards = useAtomValue(displayedCardsAtom)
+
+  const id = useAtomValue(gameIdAtom)
 
   const teamOne = useAtomValue(teamOneAtom)
   const teamTwo = useAtomValue(teamTwoAtom)
@@ -117,12 +120,6 @@ export const NextItem = ({ id }: { id: string }) => {
         <Button variant="outline" onClick={handleXClick}>
           <XIcon className="text-red-400" />
         </Button>
-      </div>
-      Current points:
-      <div className="flex gap-2">
-        <div>Team 1: {teamOne?.points}</div>
-
-        <div>Team 2: {teamTwo?.points}</div>
       </div>
     </div>
   )
