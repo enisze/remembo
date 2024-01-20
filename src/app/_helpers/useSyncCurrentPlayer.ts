@@ -12,6 +12,9 @@ function getNextPlayer(
 ) {
   if (!currentPlayer) return teamPlayers[0]
   const currentPlayerIndex = teamPlayers.indexOf(currentPlayer)
+
+  if (currentPlayerIndex === -1) return teamPlayers[0]
+
   return currentPlayerIndex === teamPlayers.length - 1
     ? teamPlayers[0]
     : teamPlayers[currentPlayerIndex + 1]
@@ -19,23 +22,22 @@ function getNextPlayer(
 
 export const useSetNextPlayer = ({ id }: { id: string }) => {
   const currentTeam = useAtomValue(currentTeamAtom)
-
   const channel = getChannel(id)
-
   const currentPlayer = useAtomValue(currentPlayerAtom)
 
   const teamOne = useAtomValue(teamOneAtom)
   const teamTwo = useAtomValue(teamTwoAtom)
 
-  const teamOnePlayers = teamOne?.players ?? []
-  const teamTwoPlayers = teamTwo?.players ?? []
-
-  const nextPlayer = getNextPlayer(
-    currentTeam === "B" ? teamTwoPlayers : teamOnePlayers,
-    currentPlayer,
-  )
-
   const setNextPlayer = useCallback(async () => {
+    const teamOnePlayers = teamOne?.players ?? []
+
+    const teamTwoPlayers = teamTwo?.players ?? []
+
+    const nextPlayer = getNextPlayer(
+      currentTeam === "B" ? teamTwoPlayers : teamOnePlayers,
+      currentPlayer,
+    )
+
     await channel.send({
       type: "broadcast",
       event: "currentPlayer",
@@ -43,7 +45,7 @@ export const useSetNextPlayer = ({ id }: { id: string }) => {
         message: nextPlayer,
       },
     })
-  }, [])
+  }, [teamOne, teamTwo, currentTeam, currentPlayer, channel])
 
   return setNextPlayer
 }

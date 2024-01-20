@@ -80,6 +80,10 @@ export const Timer = ({ id }: { id: string }) => {
   useEffect(() => {
     let timer: NodeJS.Timeout | null = null
     if (timerStarted) {
+      void (async () => {
+        await setNextPlayer()
+      })()
+
       timer = setInterval(() => {
         const newTime = timeLeft - 1
 
@@ -124,7 +128,14 @@ export const Timer = ({ id }: { id: string }) => {
     return () => {
       if (timer) clearInterval(timer)
     }
-  }, [timerStarted, timeLeft, currentPlayer, currentTeam])
+  }, [
+    timerStarted,
+    timeLeft,
+    currentTeam,
+    channel,
+    setNextPlayer,
+    setTimerStarted,
+  ])
 
   return (
     <div>
@@ -150,7 +161,6 @@ export const Timer = ({ id }: { id: string }) => {
 
       <Button
         onClick={async () => {
-          console.log(remainingCards.length)
           if (remainingCards.length > 0) {
             setTimerStarted(true)
 
