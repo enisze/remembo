@@ -30,19 +30,19 @@ export const Timer = ({ id }: { id: string }) => {
   const teamOne = useAtomValue(teamOneAtom)
   const teamTwo = useAtomValue(teamTwoAtom)
 
-  const remainingTimeA = teamOne?.remainingTime ?? 0
-  const remainingTimeB = teamTwo?.remainingTime ?? 0
+  const remainingTimeA = useMemo(() => teamOne?.remainingTime ?? 0, [teamOne])
+  const remainingTimeB = useMemo(() => teamTwo?.remainingTime ?? 0, [teamTwo])
   const [currentPlayer] = useAtom(currentPlayerAtom)
   const currentTeam = useAtomValue(currentTeamAtom)
 
   const setNextPlayer = useSetNextPlayer({ id })
 
-  const channel = getChannel(id)
-
   const remainingCards = useMemo(
     () => initialCards.filter((item) => !displayedCards.includes(item)),
     [initialCards, displayedCards],
   )
+
+  const channel = getChannel(id)
 
   const handleNextPlayer = async () => {
     const newTeamOne: Team = {
@@ -80,10 +80,6 @@ export const Timer = ({ id }: { id: string }) => {
   useEffect(() => {
     let timer: NodeJS.Timeout | null = null
     if (timerStarted) {
-      void (async () => {
-        await setNextPlayer()
-      })()
-
       timer = setInterval(() => {
         const newTime = timeLeft - 1
 
@@ -161,6 +157,14 @@ export const Timer = ({ id }: { id: string }) => {
 
       <Button
         onClick={async () => {
+          await setNextPlayer()
+        }}
+        variant="outline"
+      >
+        Choose Player
+      </Button>
+      <Button
+        onClick={async () => {
           if (remainingCards.length > 0) {
             setTimerStarted(true)
 
@@ -173,7 +177,6 @@ export const Timer = ({ id }: { id: string }) => {
                   message: card,
                 },
               })
-              await setNextPlayer()
             }
           }
         }}
@@ -182,7 +185,7 @@ export const Timer = ({ id }: { id: string }) => {
         Start
       </Button>
 
-      <NextItem remainingItems={remainingCards} id={id} />
+      <NextItem id={id} />
     </div>
   )
 }

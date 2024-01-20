@@ -2,6 +2,7 @@ import { atom } from "jotai"
 import { useCallback, useEffect, useRef } from "react"
 import { getChannel } from "../_components/supabaseClient"
 import { useHandleCards } from "./useHandleCards"
+import { useHandleCurrentCard } from "./useHandleCurrentCard"
 import { useHandleCurrentPlayer } from "./useHandleCurrentPlayer"
 import { useHandleCurrentTeam } from "./useHandleCurrentTeam"
 import { useHandleTeams } from "./useHandleTeams"
@@ -10,7 +11,13 @@ import { useHandleTimer } from "./useHandleTimer"
 export type Payload = {
   payload: unknown
   type: "broadcast"
-  event: "cards" | "teams" | "currentPlayer" | "currentTeam" | "timer"
+  event:
+    | "cards"
+    | "teams"
+    | "currentPlayer"
+    | "currentTeam"
+    | "timer"
+    | "currentCard"
 }
 export const cardAtom = atom<string[]>([])
 export const Subscriptions = ({ id }: { id: string }) => {
@@ -22,6 +29,7 @@ export const Subscriptions = ({ id }: { id: string }) => {
   const handleCurrentPlayer = useHandleCurrentPlayer()
   const handleTeams = useHandleTeams()
   const handleTimer = useHandleTimer()
+  const handleCurrentCard = useHandleCurrentCard()
 
   const messageReceived = useCallback(
     ({ payload, event }: Payload) => {
@@ -40,6 +48,10 @@ export const Subscriptions = ({ id }: { id: string }) => {
         handleTeams(payload)
       }
 
+      if (event === "currentCard") {
+        handleCurrentCard(payload)
+      }
+
       if (event === "timer") {
         handleTimer(payload)
       }
@@ -50,6 +62,7 @@ export const Subscriptions = ({ id }: { id: string }) => {
       handleCurrentPlayer,
       handleTeams,
       handleTimer,
+      handleCurrentCard,
     ],
   )
 

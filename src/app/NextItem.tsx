@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button"
-import { useAtomValue, useSetAtom } from "jotai"
+import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { displayedCardsAtom, timerStartedAtom } from "./Timer"
 
 import { CheckIcon, XIcon } from "lucide-react"
+import { useCallback } from "react"
 import { getChannel } from "./_components/supabaseClient"
+import { cardAtom } from "./_subscriptions/Subscriptions"
 import { currentTeamAtom } from "./_subscriptions/useHandleCurrentTeam"
 import {
   teamOneAtom,
@@ -11,16 +13,10 @@ import {
   type Team,
 } from "./_subscriptions/useHandleTeams"
 
-export const NextItem = ({
-  remainingItems,
-  id,
-}: {
-  remainingItems: string[]
-  id: string
-}) => {
+export const NextItem = ({ id }: { id: string }) => {
   const setTimerStarted = useSetAtom(timerStartedAtom)
-
-  const setDisplayedItems = useSetAtom(displayedCardsAtom)
+  const initialCards = useAtomValue(cardAtom)
+  const [displayedCards, setDisplayedItems] = useAtom(displayedCardsAtom)
 
   const teamOne = useAtomValue(teamOneAtom)
   const teamTwo = useAtomValue(teamTwoAtom)
@@ -29,24 +25,12 @@ export const NextItem = ({
 
   const channel = getChannel(id)
 
-  const handleCheckClick = async () => {
-    if (remainingItems.length > 0) {
-      const nextItem =
-        remainingItems[Math.floor(Math.random() * remainingItems.length)]
-      setDisplayedItems((prevItems) => [...prevItems, nextItem!])
+  const handleCheckClick = useCallback(async () => {
+    const remainingCards = initialCards.filter(
+      (item) => !displayedCards.includes(item),
+    )
 
-      if (nextItem) {
-        await channel.send({
-          type: "broadcast",
-          event: "currentTeam",
-          payload: {
-            message: currentTeam === "A" ? "B" : "A",
-          },
-        })
-      }
-
-      // Increment the score for the current team
-
+    if (remainingCards.length > 0) {
       const newTeamOne: Team = {
         ...teamOne,
         points: currentTeam === "A" ? teamOne.points + 1 : teamOne.points,
@@ -68,35 +52,49 @@ export const NextItem = ({
         },
       })
 
+      const nextItem = getNextCard(remainingCards)
+
+      setDisplayedItems((prevItems) => [...prevItems, nextItem!])
+
       await channel.send({
         type: "broadcast",
-        event: "currentTeam",
+        event: "currentCard",
         payload: {
-          message: currentTeam === "A" ? "B" : "A",
+          message: nextItem,
         },
       })
     } else {
       setTimerStarted(false)
     }
-  }
+  }, [
+    initialCards,
+    displayedCards,
+    channel,
+    setTimerStarted,
+    setDisplayedItems,
+    currentTeam,
+    teamOne,
+    teamTwo,
+  ])
 
-  const handleXClick = async () => {
-    if (remainingItems.length > 0) {
-      const nextItem =
-        remainingItems[Math.floor(Math.random() * remainingItems.length)]
-      if (nextItem) {
-        await channel.send({
-          type: "broadcast",
-          event: "currentCard",
-          payload: {
-            message: nextItem,
-          },
-        })
-      }
+  const handleXClick = useCallback(async () => {
+    const remainingCards = initialCards.filter(
+      (item) => !displayedCards.includes(item),
+    )
+    if (remainingCards.length > 0) {
+      const nextItem = getNextCard(remainingCards)
+
+      await channel.send({
+        type: "broadcast",
+        event: "currentCard",
+        payload: {
+          message: nextItem,
+        },
+      })
     } else {
       setTimerStarted(false)
     }
-  }
+  }, [initialCards, displayedCards, channel, setTimerStarted])
 
   return (
     <div className="flex flex-col gap-2 pt-4">
@@ -117,4 +115,11 @@ export const NextItem = ({
       </div>
     </div>
   )
+}
+
+const getNextCard = (remainingCards: string[]) => {
+  const nextItem =
+    remainingCards[Math.floor(Math.random() * remainingCards.length)]
+
+  return nextItem
 }

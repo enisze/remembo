@@ -3,7 +3,7 @@ import { useCallback } from "react"
 
 export const currentCardAtom = atom("")
 
-export const useHandleCurrentPlayer = () => {
+export const useHandleCurrentCard = () => {
   const setCurrentCard = useSetAtom(currentCardAtom)
 
   return useCallback(
