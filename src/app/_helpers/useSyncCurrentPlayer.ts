@@ -5,6 +5,7 @@ import { getChannel } from "../_components/supabaseClient"
 import { currentPlayerAtom } from "../_subscriptions/useHandleCurrentPlayer"
 import { currentTeamAtom } from "../_subscriptions/useHandleCurrentTeam"
 import { teamOneAtom, teamTwoAtom } from "../_subscriptions/useHandleTeams"
+import { gameIdAtom } from "../page"
 
 function getNextPlayer(
   teamPlayers: Player[],
@@ -20,7 +21,8 @@ function getNextPlayer(
     : teamPlayers[currentPlayerIndex + 1]
 }
 
-export const useSetNextPlayer = ({ id }: { id: string }) => {
+export const useSetNextPlayer = () => {
+  const id = useAtomValue(gameIdAtom)
   const currentTeam = useAtomValue(currentTeamAtom)
   const channel = getChannel(id)
   const currentPlayer = useAtomValue(currentPlayerAtom)

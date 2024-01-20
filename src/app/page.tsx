@@ -4,23 +4,24 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
 import { atom, useAtom, useAtomValue } from "jotai"
-import { useState } from "react"
 import { Cards, showCardAtom } from "./Cards"
 import { Game } from "./Game"
 import { Subscriptions } from "./_subscriptions/Subscriptions"
 
 export const nameAtom = atom("")
 
+export const gameIdAtom = atom<string>("")
+
 export default function Home() {
   const [name, setName] = useAtom(nameAtom)
 
-  const [gameId, setGameId] = useState<string>("")
+  const [gameId, setGameId] = useAtom(gameIdAtom)
   const showCards = useAtomValue(showCardAtom)
 
   if (gameId)
     return (
       <div className="bg-slate-800 text-white">
-        <Cards id={gameId} />
+        <Cards />
 
         <div
           className={cn(
@@ -28,8 +29,8 @@ export default function Home() {
             showCards ? "translate-y-0" : "-translate-y-96",
           )}
         >
-          <Subscriptions id={gameId} />
-          <Game id={gameId} playerName={name} />
+          <Subscriptions />
+          <Game playerName={name} />
         </div>
       </div>
     )

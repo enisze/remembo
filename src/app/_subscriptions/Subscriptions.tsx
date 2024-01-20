@@ -1,6 +1,7 @@
-import { atom } from "jotai"
+import { atom, useAtomValue } from "jotai"
 import { useCallback, useEffect, useRef } from "react"
 import { getChannel } from "../_components/supabaseClient"
+import { gameIdAtom } from "../page"
 import { useHandleCards } from "./useHandleCards"
 import { useHandleCurrentCard } from "./useHandleCurrentCard"
 import { useHandleCurrentPlayer } from "./useHandleCurrentPlayer"
@@ -22,8 +23,11 @@ export type Payload = {
     | "displayedCards"
 }
 export const cardAtom = atom<string[]>([])
-export const Subscriptions = ({ id }: { id: string }) => {
+export const Subscriptions = () => {
   const called = useRef(false)
+
+  const id = useAtomValue(gameIdAtom)
+
   const channel = getChannel(id)
 
   const handleCardsSubscription = useHandleCards()

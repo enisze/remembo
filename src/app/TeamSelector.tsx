@@ -3,18 +3,15 @@ import { useAtomValue } from "jotai"
 import { playersAtom, type Player } from "./Game"
 import { getChannel } from "./_components/supabaseClient"
 import { teamOneAtom, teamTwoAtom } from "./_subscriptions/useHandleTeams"
+import { gameIdAtom } from "./page"
 
 type Team = "A" | "B" | null
 
-export const TeamSelector = ({
-  player,
-  id,
-}: {
-  player: Player | undefined
-  id: string
-}) => {
+export const TeamSelector = ({ player }: { player: Player | undefined }) => {
   const teamOne = useAtomValue(teamOneAtom)
   const teamTwo = useAtomValue(teamTwoAtom)
+
+  const id = useAtomValue(gameIdAtom)
 
   const channel = getChannel(id)
   const players = useAtomValue(playersAtom)

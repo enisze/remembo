@@ -4,18 +4,21 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
-import { atom, useAtom } from "jotai"
+import { atom, useAtom, useAtomValue } from "jotai"
 import { useState } from "react"
 import { getChannel } from "./_components/supabaseClient"
+import { gameIdAtom } from "./page"
 
 export const showCardAtom = atom(true)
 
-export function Cards({ id }: { id: string }) {
+export function Cards() {
   const [cardOne, setCardOne] = useState<string>("")
   const [cardTwo, setCardTwo] = useState<string>("")
   const [cardThree, setCardThree] = useState<string>("")
 
   const [showCardComponent, setShowCardComponent] = useAtom(showCardAtom)
+
+  const id = useAtomValue(gameIdAtom)
 
   const channel = getChannel(id)
 

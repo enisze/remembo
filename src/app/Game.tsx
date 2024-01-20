@@ -13,18 +13,15 @@ export type Player = {
 
 export const playersAtom = atom<Player[]>([])
 
-export function Game({ id, playerName }: { id: string; playerName: string }) {
+export function Game({ playerName }: { playerName: string }) {
   const players = useAtomValue(playersAtom)
   const teamOne = useAtomValue(teamOneAtom)
   const teamTwo = useAtomValue(teamTwoAtom)
 
   return (
     <div className="flex h-screen flex-col gap-3 bg-slate-800 p-4 text-white">
-      <PlayerPresence id={id} playerName={playerName} />
-      <TeamSelector
-        player={players.find((p) => p.name === playerName)}
-        id={id}
-      />
+      <PlayerPresence playerName={playerName} />
+      <TeamSelector player={players.find((p) => p.name === playerName)} />
       <div className="rounded-md border p-4">Teams</div>
       <div className="text-md">TEAM A</div>
       {teamOne.players.map((m) => (
@@ -35,7 +32,7 @@ export function Game({ id, playerName }: { id: string; playerName: string }) {
         <div key={m.key}>{m.name}</div>
       ))}
 
-      <Timer id={id} />
+      <Timer />
     </div>
   )
 }

@@ -2,20 +2,15 @@ import { atom, useAtom, useAtomValue } from "jotai"
 import { useEffect, useRef } from "react"
 import { playersAtom, type Player } from "./Game"
 import { supabase } from "./_components/supabaseClient"
-import { nameAtom } from "./page"
+import { gameIdAtom, nameAtom } from "./page"
 
 export const meAtom = atom<Player | null>(null)
 
-export const PlayerPresence = ({
-  id,
-  playerName,
-}: {
-  id: string
-  playerName: string
-}) => {
+export const PlayerPresence = ({ playerName }: { playerName: string }) => {
   const [players, setPlayers] = useAtom(playersAtom)
   const [me, setMe] = useAtom(meAtom)
 
+  const id = useAtomValue(gameIdAtom)
   const name = useAtomValue(nameAtom)
 
   const subscribed = useRef(false)
