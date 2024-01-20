@@ -30,16 +30,31 @@ export const NextItem = ({ id }: { id: string }) => {
       (item) => !displayedCards.includes(item),
     )
 
-    if (remainingCards.length > 0) {
-      const newTeamOne: Team = {
-        ...teamOne,
-        points: currentTeam === "A" ? teamOne.points + 1 : teamOne.points,
-      }
+    const newTeamOne: Team = {
+      ...teamOne,
+      points: currentTeam === "A" ? teamOne.points + 1 : teamOne.points,
+    }
 
-      const newTeamTwo: Team = {
-        ...teamTwo,
-        points: currentTeam === "B" ? teamTwo.points + 1 : teamTwo.points,
-      }
+    const newTeamTwo: Team = {
+      ...teamTwo,
+      points: currentTeam === "B" ? teamTwo.points + 1 : teamTwo.points,
+    }
+
+    if (remainingCards.length === 0) {
+      await channel.send({
+        type: "broadcast",
+        event: "teams",
+        payload: {
+          message: {
+            teamOne: newTeamOne,
+            teamTwo: newTeamTwo,
+          },
+        },
+      })
+    }
+
+    if (remainingCards.length > 0) {
+      const nextItem = getNextCard(remainingCards)
 
       await channel.send({
         type: "broadcast",
@@ -51,8 +66,6 @@ export const NextItem = ({ id }: { id: string }) => {
           },
         },
       })
-
-      const nextItem = getNextCard(remainingCards)
 
       await channel.send({
         type: "broadcast",

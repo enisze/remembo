@@ -145,7 +145,7 @@ export const Timer = ({ id }: { id: string }) => {
       </div>
 
       {timeLeft <= 0 ||
-        (displayedCards.length === initialCards.length && (
+        (!timerStarted && (
           <Button variant="outline" onClick={handleNextPlayer}>
             Next player
           </Button>
