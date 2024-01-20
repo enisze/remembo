@@ -1,21 +1,15 @@
 import { Button } from "@/components/ui/button"
 import { useAtomValue } from "jotai"
-import { useCallback } from "react"
-import { CurrentPlayerView, timerStartedAtom } from "./CurrentPlayerView"
+import { CurrentPlayerView } from "./CurrentPlayerView"
 import { getChannel } from "./_components/supabaseClient"
 import { useSetNextPlayer } from "./_helpers/useSyncCurrentPlayer"
 import { currentPlayerAtom } from "./_subscriptions/useHandleCurrentPlayer"
 import { currentTeamAtom } from "./_subscriptions/useHandleCurrentTeam"
-import {
-  teamOneAtom,
-  teamTwoAtom,
-  type Team,
-} from "./_subscriptions/useHandleTeams"
+import { teamOneAtom, teamTwoAtom } from "./_subscriptions/useHandleTeams"
 import { timerAtom } from "./_subscriptions/useHandleTimer"
 import { gameIdAtom } from "./page"
 
 export const Timer = () => {
-  const timerStarted = useAtomValue(timerStartedAtom)
   const timeLeft = useAtomValue(timerAtom)
 
   const teamOne = useAtomValue(teamOneAtom)
@@ -30,76 +24,19 @@ export const Timer = () => {
 
   const channel = getChannel(id)
 
-  const handleNextPlayer = useCallback(async () => {
-    const remainingTimeA = teamOne.remainingTime ?? 0
-    const remainingTimeB = teamTwo.remainingTime ?? 0
-    const newTeamOne: Team = {
-      ...teamOne,
-      remainingTime: currentTeam === "A" ? remainingTimeA + 60 : remainingTimeA,
-    }
-
-    const newTeamTwo: Team = {
-      ...teamTwo,
-      remainingTime: currentTeam === "B" ? remainingTimeB + 60 : remainingTimeB,
-    }
-
-    await channel.send({
-      type: "broadcast",
-      event: "teams",
-      payload: {
-        message: {
-          teamOne: newTeamOne,
-          teamTwo: newTeamTwo,
-        },
-      },
-    })
-
-    const newTeam = currentTeam === "A" ? "B" : "A"
-
-    await channel.send({
-      type: "broadcast",
-      event: "currentTeam",
-      payload: {
-        message: newTeam,
-      },
-    })
-
-    await channel.send({
-      type: "broadcast",
-      event: "remainingCards",
-    })
-
-    const newTime =
-      newTeam === "A" ? newTeamOne.remainingTime : newTeamTwo.remainingTime
-
-    await channel.send({
-      type: "broadcast",
-      event: "timer",
-      payload: {
-        message: newTime,
-      },
-    })
-
-    await setNextPlayer()
-  }, [channel, currentTeam, setNextPlayer, teamOne, teamTwo])
-
   return (
     <div>
       <div className="flex gap-2 rounded-md border border-solid p-3">
         <h1>Its your turn</h1>
         <div>{currentPlayer?.name}</div>
+
+        <div>Team: {currentTeam}</div>
       </div>
       <div className="flex gap-2 rounded-md border border-solid p-3">
         <h1>Timer</h1>
         <p>Time left: {timeLeft}</p>
         <CurrentPlayerView />
       </div>
-      {timeLeft <= 0 ||
-        (!timerStarted && (
-          <Button variant="outline" onClick={handleNextPlayer}>
-            Next player
-          </Button>
-        ))}
       <Button
         onClick={async () => {
           await setNextPlayer()
@@ -107,6 +44,43 @@ export const Timer = () => {
         variant="outline"
       >
         Choose Player
+      </Button>
+
+      <Button
+        onClick={async () => {
+          await channel.send({
+            type: "broadcast",
+            event: "timer",
+            payload: {
+              message: 60,
+            },
+          })
+
+          await channel.send({
+            type: "broadcast",
+            event: "timeTeams",
+            payload: {
+              message: {
+                team: "A",
+                time: 0,
+              },
+            },
+          })
+
+          await channel.send({
+            type: "broadcast",
+            event: "timeTeams",
+            payload: {
+              message: {
+                team: "B",
+                time: 0,
+              },
+            },
+          })
+        }}
+        variant="outline"
+      >
+        Reset timer
       </Button>
       <div>
         Current points:

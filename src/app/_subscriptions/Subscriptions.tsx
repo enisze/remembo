@@ -9,6 +9,7 @@ import { useHandleCurrentTeam } from "./useHandleCurrentTeam"
 import { useHandleDisplayedCards } from "./useHandleDisplayedCards"
 import { useHandlePoints } from "./useHandlePoints"
 import { useHandleTeams } from "./useHandleTeams"
+import { useHandleTimeTeams } from "./useHandleTimeTeams"
 import { useHandleTimer } from "./useHandleTimer"
 
 export type Payload = {
@@ -23,6 +24,7 @@ export type Payload = {
     | "currentCard"
     | "displayedCards"
     | "points"
+    | "timeTeams"
 }
 export const cardAtom = atom<string[]>([])
 export const Subscriptions = () => {
@@ -40,6 +42,7 @@ export const Subscriptions = () => {
   const handleCurrentCard = useHandleCurrentCard()
   const handleDisplayedCards = useHandleDisplayedCards()
   const handlePoints = useHandlePoints()
+  const handleTimeTeams = useHandleTimeTeams()
 
   const messageReceived = useCallback(
     ({ payload, event }: Payload) => {
@@ -76,12 +79,18 @@ export const Subscriptions = () => {
           handlePoints(payload)
           break
         }
+
+        case "timeTeams": {
+          handleTimeTeams(payload)
+        }
+
         default: {
           break
         }
       }
     },
     [
+      handleTimeTeams,
       handleDisplayedCards,
       handleCardsSubscription,
       handleCurrentTeam,
