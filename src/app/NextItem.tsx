@@ -37,7 +37,7 @@ export const NextItem = ({ id }: { id: string }) => {
       }
 
       const newTeamTwo: Team = {
-        ...teamOne,
+        ...teamTwo,
         points: currentTeam === "B" ? teamTwo.points + 1 : teamTwo.points,
       }
 
