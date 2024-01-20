@@ -74,7 +74,11 @@ export const NextItem = () => {
       (item) => !displayedCards.includes(item),
     )
     if (remainingCards.length > 0) {
-      const nextItem = getNextCard(remainingCards)
+      let nextItem = getNextCard(remainingCards)
+
+      while (nextItem === currentCard && remainingCards.length > 1) {
+        nextItem = getNextCard(remainingCards)
+      }
 
       await channel.send({
         type: "broadcast",
@@ -86,7 +90,7 @@ export const NextItem = () => {
     } else {
       setTimerStarted(false)
     }
-  }, [initialCards, displayedCards, channel, setTimerStarted])
+  }, [initialCards, displayedCards, channel, setTimerStarted, currentCard])
 
   return (
     <div className="flex flex-col gap-2 pt-4">
