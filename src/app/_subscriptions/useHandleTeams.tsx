@@ -23,8 +23,11 @@ export const useHandleTeams = () => {
   const setTeamOne = useSetAtom(teamOneAtom)
   const setTeamTwo = useSetAtom(teamTwoAtom)
 
-  return useCallback((payload: unknown) => {
-    setTeamOne(payload.message.teamOne)
-    setTeamTwo(payload.message.teamTwo)
-  }, [])
+  return useCallback(
+    (payload: unknown) => {
+      setTeamOne(payload.message.teamOne)
+      setTeamTwo(payload.message.teamTwo)
+    },
+    [setTeamOne, setTeamTwo],
+  )
 }

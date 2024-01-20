@@ -6,7 +6,10 @@ export const currentCardAtom = atom("")
 export const useHandleCurrentPlayer = () => {
   const setCurrentCard = useSetAtom(currentCardAtom)
 
-  return useCallback((payload: unknown) => {
-    setCurrentCard(payload?.message as string)
-  }, [])
+  return useCallback(
+    (payload: unknown) => {
+      setCurrentCard(payload?.message as string)
+    },
+    [setCurrentCard],
+  )
 }
