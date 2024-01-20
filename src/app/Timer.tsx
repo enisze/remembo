@@ -6,9 +6,9 @@ import { NextItem } from "./NextItem"
 import { getChannel } from "./_components/supabaseClient"
 import { useSetNextPlayer } from "./_helpers/useSyncCurrentPlayer"
 import { cardAtom } from "./_subscriptions/Subscriptions"
-import { displayedCardsAtom } from "./_subscriptions/useHandleCurrentCard"
 import { currentPlayerAtom } from "./_subscriptions/useHandleCurrentPlayer"
 import { currentTeamAtom } from "./_subscriptions/useHandleCurrentTeam"
+import { displayedCardsAtom } from "./_subscriptions/useHandleDisplayedCards"
 import {
   teamOneAtom,
   teamTwoAtom,
@@ -64,11 +64,29 @@ export const Timer = ({ id }: { id: string }) => {
       },
     })
 
+    const newTeam = currentTeam === "A" ? "B" : "A"
+
     await channel.send({
       type: "broadcast",
       event: "currentTeam",
       payload: {
-        message: currentTeam === "A" ? "B" : "A",
+        message: newTeam,
+      },
+    })
+
+    await channel.send({
+      type: "broadcast",
+      event: "remainingCards",
+    })
+
+    const newTime =
+      newTeam === "A" ? newTeamOne.remainingTime : newTeamTwo.remainingTime
+
+    await channel.send({
+      type: "broadcast",
+      event: "timer",
+      payload: {
+        message: newTime,
       },
     })
 
@@ -77,6 +95,8 @@ export const Timer = ({ id }: { id: string }) => {
 
   useEffect(() => {
     let timer: NodeJS.Timeout | null = null
+
+    console.log(timerStarted)
     if (timerStarted) {
       timer = setInterval(() => {
         const newTime = timeLeft - 1

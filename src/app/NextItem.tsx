@@ -6,8 +6,8 @@ import { CheckIcon, XIcon } from "lucide-react"
 import { useCallback } from "react"
 import { getChannel } from "./_components/supabaseClient"
 import { cardAtom } from "./_subscriptions/Subscriptions"
-import { displayedCardsAtom } from "./_subscriptions/useHandleCurrentCard"
 import { currentTeamAtom } from "./_subscriptions/useHandleCurrentTeam"
+import { displayedCardsAtom } from "./_subscriptions/useHandleDisplayedCards"
 import {
   teamOneAtom,
   teamTwoAtom,

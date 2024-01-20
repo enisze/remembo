@@ -1,9 +1,8 @@
 import { atom, useSetAtom } from "jotai"
 import { useCallback } from "react"
+import { displayedCardsAtom } from "./useHandleDisplayedCards"
 
 export const currentCardAtom = atom("")
-
-export const displayedCardsAtom = atom<string[]>([])
 
 export const useHandleCurrentCard = () => {
   const setCurrentCard = useSetAtom(currentCardAtom)
