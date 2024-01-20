@@ -87,6 +87,10 @@ export const CurrentPlayerView = () => {
         }
       }, 1000)
     }
+
+    return () => {
+      if (timer.current) clearInterval(timer.current)
+    }
   }, [timeLeft, currentTeam, channel, setNextPlayer, timerStarted])
 
   const handleNextPlayer = useCallback(async () => {
