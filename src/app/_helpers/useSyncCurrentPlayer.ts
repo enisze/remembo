@@ -5,7 +5,7 @@ import { getChannel } from "../_components/supabaseClient"
 import { currentPlayerAtom } from "../_subscriptions/useHandleCurrentPlayer"
 import { currentTeamAtom } from "../_subscriptions/useHandleCurrentTeam"
 import { teamOneAtom, teamTwoAtom } from "../_subscriptions/useHandleTeams"
-import { gameIdAtom } from "../page"
+import { gameIdAtom } from "./atoms"
 
 function getNextPlayer(
   teamPlayers: Player[],

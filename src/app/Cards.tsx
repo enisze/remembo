@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 import { atom, useAtom, useAtomValue } from "jotai"
 import { useState } from "react"
 import { getChannel } from "./_components/supabaseClient"
-import { gameIdAtom } from "./page"
+import { gameIdAtom } from "./_helpers/atoms"
 
 export const showCardAtom = atom(true)
 

@@ -5,11 +5,11 @@ import { CheckIcon, XIcon } from "lucide-react"
 import { useCallback } from "react"
 import { timerStartedAtom } from "./CurrentPlayerView"
 import { getChannel } from "./_components/supabaseClient"
+import { gameIdAtom } from "./_helpers/atoms"
 import { cardAtom } from "./_subscriptions/Subscriptions"
 import { currentCardAtom } from "./_subscriptions/useHandleCurrentCard"
 import { currentTeamAtom } from "./_subscriptions/useHandleCurrentTeam"
 import { displayedCardsAtom } from "./_subscriptions/useHandleDisplayedCards"
-import { gameIdAtom } from "./page"
 
 export const NextItem = () => {
   const setTimerStarted = useSetAtom(timerStartedAtom)

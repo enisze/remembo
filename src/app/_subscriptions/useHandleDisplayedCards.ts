@@ -1,18 +1,21 @@
-import { atom, useSetAtom } from "jotai"
+import { atom, useAtom } from "jotai"
 import { useCallback } from "react"
 
 export const displayedCardsAtom = atom<string[]>([])
 export const useHandleDisplayedCards = () => {
-  const setDisplayedCards = useSetAtom(displayedCardsAtom)
+  const [displayedCards, setDisplayedCards] = useAtom(displayedCardsAtom)
 
   return useCallback(
     (payload: unknown) => {
-      if (!payload) {
+      if (!payload.message) {
         setDisplayedCards([])
       } else {
-        setDisplayedCards((prev) => [...prev, payload?.message as string])
+        const item = payload?.message as string
+        console.log(item, displayedCards)
+        if (displayedCards.includes(item)) return
+        setDisplayedCards((prev) => [...prev, item])
       }
     },
-    [setDisplayedCards],
+    [setDisplayedCards, displayedCards],
   )
 }

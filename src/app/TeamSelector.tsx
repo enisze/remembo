@@ -2,8 +2,8 @@ import { Button } from "@/components/ui/button"
 import { useAtomValue } from "jotai"
 import { playersAtom, type Player } from "./Game"
 import { getChannel } from "./_components/supabaseClient"
+import { gameIdAtom } from "./_helpers/atoms"
 import { teamOneAtom, teamTwoAtom } from "./_subscriptions/useHandleTeams"
-import { gameIdAtom } from "./page"
 
 type Team = "A" | "B" | null
 

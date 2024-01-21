@@ -2,7 +2,7 @@ import { atom, useAtom, useAtomValue } from "jotai"
 import { useEffect, useRef } from "react"
 import { playersAtom, type Player } from "./Game"
 import { supabase } from "./_components/supabaseClient"
-import { gameIdAtom, nameAtom } from "./page"
+import { gameIdAtom, nameAtom } from "./_helpers/atoms"
 
 export const meAtom = atom<Player | null>(null)
 

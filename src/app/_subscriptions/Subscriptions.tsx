@@ -1,7 +1,7 @@
 import { atom, useAtomValue } from "jotai"
 import { useCallback, useEffect, useRef } from "react"
 import { getChannel } from "../_components/supabaseClient"
-import { gameIdAtom } from "../page"
+import { gameIdAtom } from "../_helpers/atoms"
 import { useHandleCards } from "./useHandleCards"
 import { useHandleCurrentCard } from "./useHandleCurrentCard"
 import { useHandleCurrentPlayer } from "./useHandleCurrentPlayer"

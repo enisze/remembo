@@ -3,14 +3,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
-import { atom, useAtom, useAtomValue } from "jotai"
+import { useAtom, useAtomValue } from "jotai"
 import { Cards, showCardAtom } from "./Cards"
 import { Game } from "./Game"
+import { gameIdAtom, nameAtom } from "./_helpers/atoms"
 import { Subscriptions } from "./_subscriptions/Subscriptions"
-
-export const nameAtom = atom("")
-
-export const gameIdAtom = atom<string>("")
 
 export default function Home() {
   const [name, setName] = useAtom(nameAtom)

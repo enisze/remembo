@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef } from "react"
 import { NextItem } from "./NextItem"
 import { meAtom } from "./PlayerPresence"
 import { getChannel } from "./_components/supabaseClient"
+import { gameIdAtom } from "./_helpers/atoms"
 import { useSetNextPlayer } from "./_helpers/useSyncCurrentPlayer"
 import { cardAtom } from "./_subscriptions/Subscriptions"
 import { currentCardAtom } from "./_subscriptions/useHandleCurrentCard"
@@ -12,7 +13,6 @@ import { currentTeamAtom } from "./_subscriptions/useHandleCurrentTeam"
 import { displayedCardsAtom } from "./_subscriptions/useHandleDisplayedCards"
 import { teamOneAtom, teamTwoAtom } from "./_subscriptions/useHandleTeams"
 import { timerAtom } from "./_subscriptions/useHandleTimer"
-import { gameIdAtom } from "./page"
 
 export const timerStartedAtom = atom(false)
 
@@ -45,6 +45,7 @@ export const CurrentPlayerView = () => {
   const setNextPlayer = useSetNextPlayer()
 
   useEffect(() => {
+    console.log(displayedCards, remainingCards)
     if (timerStarted) {
       timer.current = setInterval(() => {
         const newTime = timeLeft - 1
@@ -103,6 +104,8 @@ export const CurrentPlayerView = () => {
     setNextPlayer,
     setTimerStarted,
     timerStarted,
+    displayedCards,
+    remainingCards,
   ])
 
   const handleNextPlayer = useCallback(async () => {

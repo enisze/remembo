@@ -3,6 +3,7 @@ import { useAtomValue } from "jotai"
 import { useMemo } from "react"
 import { CurrentPlayerView } from "./CurrentPlayerView"
 import { getChannel } from "./_components/supabaseClient"
+import { gameIdAtom } from "./_helpers/atoms"
 import { useSetNextPlayer } from "./_helpers/useSyncCurrentPlayer"
 import { cardAtom } from "./_subscriptions/Subscriptions"
 import { currentPlayerAtom } from "./_subscriptions/useHandleCurrentPlayer"
@@ -11,7 +12,6 @@ import { displayedCardsAtom } from "./_subscriptions/useHandleDisplayedCards"
 import { currentRoundAtom } from "./_subscriptions/useHandleRound"
 import { teamOneAtom, teamTwoAtom } from "./_subscriptions/useHandleTeams"
 import { timerAtom } from "./_subscriptions/useHandleTimer"
-import { gameIdAtom } from "./page"
 
 export const Timer = () => {
   const timeLeft = useAtomValue(timerAtom)
