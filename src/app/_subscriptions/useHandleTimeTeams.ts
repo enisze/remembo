@@ -7,18 +7,18 @@ export const useHandleTimeTeams = () => {
   const setTeamTwo = useSetAtom(teamTwoAtom)
 
   return useCallback(
-    (payload: unknown) => {
-      if (payload?.message.team === "A") {
+    ({ team, time }: { team: string; time: number }) => {
+      if (team === "A") {
         setTeamOne((prev) => ({
           ...prev,
-          remainingTime: payload?.message.time as number,
+          remainingTime: time,
         }))
       }
 
-      if (payload?.message.team === "B") {
+      if (team === "B") {
         setTeamTwo((prev) => ({
           ...prev,
-          remainingTime: payload?.message.time as number,
+          remainingTime: time,
         }))
       }
     },

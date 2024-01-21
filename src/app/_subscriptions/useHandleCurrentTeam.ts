@@ -7,8 +7,8 @@ export const useHandleCurrentTeam = () => {
   const setCurrentTeam = useSetAtom(currentTeamAtom)
 
   return useCallback(
-    (payload: unknown) => {
-      setCurrentTeam(payload?.message as string)
+    (message: string) => {
+      setCurrentTeam(message)
     },
     [setCurrentTeam],
   )

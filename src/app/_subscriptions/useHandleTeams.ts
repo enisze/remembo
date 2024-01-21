@@ -1,12 +1,14 @@
 import { atom, useSetAtom } from "jotai"
 import { useCallback } from "react"
-import { type Player } from "../Game"
+import { z } from "zod"
 
-export type Team = {
-  players: Player[]
-  remainingTime: number
-  points: number
-}
+export const teamSchema = z.object({
+  players: z.array(z.string()),
+  remainingTime: z.number(),
+  points: z.number(),
+})
+
+export type Team = z.infer<typeof teamSchema>
 
 export const teamOneAtom = atom<Team>({
   players: [],
@@ -24,9 +26,9 @@ export const useHandleTeams = () => {
   const setTeamTwo = useSetAtom(teamTwoAtom)
 
   return useCallback(
-    (payload: unknown) => {
-      setTeamOne(payload.message.teamOne)
-      setTeamTwo(payload.message.teamTwo)
+    (teamOne: Team, teamTwo: Team) => {
+      setTeamOne(teamOne)
+      setTeamTwo(teamTwo)
     },
     [setTeamOne, setTeamTwo],
   )

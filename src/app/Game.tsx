@@ -1,16 +1,18 @@
 "use client"
 
 import { atom, useAtomValue } from "jotai"
+import { z } from "zod"
 import { PlayerPresence } from "./PlayerPresence"
 import { TeamSelector } from "./TeamSelector"
 import { Timer } from "./Timer"
 import { teamOneAtom, teamTwoAtom } from "./_subscriptions/useHandleTeams"
 
-export type Player = {
-  key: string | undefined
-  name: string | undefined
-}
+export const playerSchema = z.object({
+  name: z.string(),
+  key: z.string(),
+})
 
+export type Player = z.infer<typeof playerSchema>
 export const playersAtom = atom<Player[]>([])
 
 export function Game({ playerName }: { playerName: string }) {

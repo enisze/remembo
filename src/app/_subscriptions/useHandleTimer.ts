@@ -7,8 +7,8 @@ export const useHandleTimer = () => {
   const setTimer = useSetAtom(timerAtom)
 
   return useCallback(
-    (payload: unknown) => {
-      setTimer(payload?.message as number)
+    (message: number) => {
+      setTimer(message)
     },
     [setTimer],
   )

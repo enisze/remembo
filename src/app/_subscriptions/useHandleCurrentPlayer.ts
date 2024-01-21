@@ -8,8 +8,8 @@ export const useHandleCurrentPlayer = () => {
   const setCurrentPlayer = useSetAtom(currentPlayerAtom)
 
   return useCallback(
-    (payload: unknown) => {
-      setCurrentPlayer(payload?.message as Player)
+    (message: Player) => {
+      setCurrentPlayer(message)
     },
     [setCurrentPlayer],
   )

@@ -7,8 +7,8 @@ export const useHandleCurrentCard = () => {
   const setCurrentCard = useSetAtom(currentCardAtom)
 
   return useCallback(
-    (payload: unknown) => {
-      setCurrentCard(payload?.message as string)
+    (message: string) => {
+      setCurrentCard(message)
     },
     [setCurrentCard],
   )

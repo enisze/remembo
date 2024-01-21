@@ -6,14 +6,12 @@ export const useHandleDisplayedCards = () => {
   const [displayedCards, setDisplayedCards] = useAtom(displayedCardsAtom)
 
   return useCallback(
-    (payload: unknown) => {
-      if (!payload.message) {
+    (message?: string) => {
+      if (!message) {
         setDisplayedCards([])
       } else {
-        const item = payload?.message as string
-        console.log(item, displayedCards)
-        if (displayedCards.includes(item)) return
-        setDisplayedCards((prev) => [...prev, item])
+        if (displayedCards.includes(message)) return
+        setDisplayedCards((prev) => [...prev, message])
       }
     },
     [setDisplayedCards, displayedCards],
