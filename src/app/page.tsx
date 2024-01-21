@@ -22,7 +22,6 @@ export default function Home() {
     return (
       <div className="bg-slate-800 text-white">
         <Cards />
-
         <div
           className={cn(
             "transform transition-all duration-500 ease-in-out",

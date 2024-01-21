@@ -83,15 +83,27 @@ export const CurrentPlayerView = () => {
           void (async () => {
             await setNextPlayer()
           })()
-          if (timer.current) clearInterval(timer.current)
+          if (timer.current) {
+            clearInterval(timer.current)
+            setTimerStarted(false)
+          }
         }
       }, 1000)
     }
 
     return () => {
-      if (timer.current) clearInterval(timer.current)
+      if (timer.current) {
+        clearInterval(timer.current)
+      }
     }
-  }, [timeLeft, currentTeam, channel, setNextPlayer, timerStarted])
+  }, [
+    timeLeft,
+    currentTeam,
+    channel,
+    setNextPlayer,
+    setTimerStarted,
+    timerStarted,
+  ])
 
   const handleNextPlayer = useCallback(async () => {
     await channel.send({
@@ -118,6 +130,7 @@ export const CurrentPlayerView = () => {
     await channel.send({
       type: "broadcast",
       event: "remainingCards",
+      payload: {},
     })
 
     const newTime =
@@ -133,9 +146,18 @@ export const CurrentPlayerView = () => {
       },
     })
     clearInterval(timer.current)
+    setTimerStarted(false)
 
     await setNextPlayer()
-  }, [channel, currentTeam, setNextPlayer, teamOne, teamTwo, timeLeft])
+  }, [
+    channel,
+    currentTeam,
+    setNextPlayer,
+    teamOne,
+    teamTwo,
+    timeLeft,
+    setTimerStarted,
+  ])
 
   if (currentPlayer?.key !== me?.key) return null
   return (
@@ -164,12 +186,9 @@ export const CurrentPlayerView = () => {
       </Button>
       <p className="text-md font-bold">{currentCard}</p>
 
-      {timeLeft <= 0 ||
-        (!timer.current && (
-          <Button variant="outline" onClick={handleNextPlayer}>
-            Next player
-          </Button>
-        ))}
+      <Button variant="outline" onClick={handleNextPlayer}>
+        Next player
+      </Button>
 
       <NextItem />
     </div>

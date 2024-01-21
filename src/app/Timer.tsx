@@ -1,10 +1,14 @@
 import { Button } from "@/components/ui/button"
 import { useAtomValue } from "jotai"
+import { useMemo } from "react"
 import { CurrentPlayerView } from "./CurrentPlayerView"
 import { getChannel } from "./_components/supabaseClient"
 import { useSetNextPlayer } from "./_helpers/useSyncCurrentPlayer"
+import { cardAtom } from "./_subscriptions/Subscriptions"
 import { currentPlayerAtom } from "./_subscriptions/useHandleCurrentPlayer"
 import { currentTeamAtom } from "./_subscriptions/useHandleCurrentTeam"
+import { displayedCardsAtom } from "./_subscriptions/useHandleDisplayedCards"
+import { currentRoundAtom } from "./_subscriptions/useHandleRound"
 import { teamOneAtom, teamTwoAtom } from "./_subscriptions/useHandleTeams"
 import { timerAtom } from "./_subscriptions/useHandleTimer"
 import { gameIdAtom } from "./page"
@@ -18,11 +22,21 @@ export const Timer = () => {
   const currentPlayer = useAtomValue(currentPlayerAtom)
   const currentTeam = useAtomValue(currentTeamAtom)
 
+  const currentRound = useAtomValue(currentRoundAtom)
+
+  const initialCards = useAtomValue(cardAtom)
+  const displayedCards = useAtomValue(displayedCardsAtom)
+
   const id = useAtomValue(gameIdAtom)
 
   const setNextPlayer = useSetNextPlayer()
 
   const channel = getChannel(id)
+
+  const remainingCards = useMemo(
+    () => initialCards.filter((item) => !displayedCards.includes(item)),
+    [initialCards, displayedCards],
+  )
 
   return (
     <div>
@@ -82,6 +96,23 @@ export const Timer = () => {
       >
         Reset timer
       </Button>
+
+      {remainingCards.length === 0 && (
+        <Button
+          onClick={async () => {
+            await channel.send({
+              event: "round",
+              type: "broadcast",
+              payload: {
+                message: currentRound + 1,
+              },
+            })
+          }}
+          variant="outline"
+        >
+          Start next round
+        </Button>
+      )}
       <div>
         Current points:
         <div className="flex gap-2">
