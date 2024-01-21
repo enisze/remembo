@@ -107,6 +107,12 @@ export const Timer = () => {
                 message: currentRound + 1,
               },
             })
+
+            await channel.send({
+              event: "displayedCards",
+              type: "broadcast",
+              payload: {},
+            })
           }}
           variant="outline"
         >
