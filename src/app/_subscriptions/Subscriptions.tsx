@@ -10,6 +10,7 @@ import { useHandleCurrentPlayer } from "./useHandleCurrentPlayer"
 import { useHandleCurrentTeam } from "./useHandleCurrentTeam"
 import { useHandleDisplayedCards } from "./useHandleDisplayedCards"
 import { useHandlePoints } from "./useHandlePoints"
+import { useHandleCurrentRound } from "./useHandleRound"
 import { teamSchema, useHandleTeams } from "./useHandleTeams"
 import { useHandleTimeTeams } from "./useHandleTimeTeams"
 import { useHandleTimer } from "./useHandleTimer"
@@ -27,6 +28,7 @@ export type Payload = {
     | "displayedCards"
     | "points"
     | "timeTeams"
+    | "round"
 }
 export const cardAtom = atom<string[]>([])
 export const Subscriptions = () => {
@@ -45,6 +47,7 @@ export const Subscriptions = () => {
   const handleDisplayedCards = useHandleDisplayedCards()
   const handlePoints = useHandlePoints()
   const handleTimeTeams = useHandleTimeTeams()
+  const handleCurrentRound = useHandleCurrentRound()
 
   const messageReceived = useCallback(
     ({ payload, event }: Payload) => {
@@ -139,12 +142,22 @@ export const Subscriptions = () => {
           handleTimeTeams(message)
         }
 
+        case "round": {
+          const schema = z.object({
+            message: z.number(),
+          })
+
+          const { message } = schema.parse(payload)
+          handleCurrentRound(message)
+        }
+
         default: {
           break
         }
       }
     },
     [
+      handleCurrentRound,
       handleTimeTeams,
       handleDisplayedCards,
       handleCardsSubscription,

@@ -7,8 +7,8 @@ export const useHandleCurrentRound = () => {
   const setRound = useSetAtom(currentRoundAtom)
 
   return useCallback(
-    (payload: unknown) => {
-      setRound(payload?.message as number)
+    (message: number) => {
+      setRound(message)
     },
     [setRound],
   )

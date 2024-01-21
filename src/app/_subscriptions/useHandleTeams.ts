@@ -1,9 +1,10 @@
 import { atom, useSetAtom } from "jotai"
 import { useCallback } from "react"
 import { z } from "zod"
+import { playerSchema } from "../Game"
 
 export const teamSchema = z.object({
-  players: z.array(z.string()),
+  players: playerSchema.array(),
   remainingTime: z.number(),
   points: z.number(),
 })

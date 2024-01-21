@@ -21,7 +21,7 @@ export const PlayerPresence = ({ playerName }: { playerName: string }) => {
     if (subscribed.current) return
 
     presence
-      .on("presence", { event: "join" }, ({ key, newPresences }) => {
+      .on("presence", { event: "join" }, ({ newPresences }) => {
         const user = newPresences.at(0)
 
         const myself = newPresences.find((p) => (p?.user as string) === name)
@@ -35,10 +35,10 @@ export const PlayerPresence = ({ playerName }: { playerName: string }) => {
 
         setPlayers((prev) => [
           ...prev,
-          { key: user?.presence_ref, name: user?.user as string },
+          { key: user?.presence_ref ?? "", name: user?.user as string },
         ])
       })
-      .on("presence", { event: "leave" }, ({ key, leftPresences }) => {
+      .on("presence", { event: "leave" }, ({ leftPresences }) => {
         const user = leftPresences.at(0)
         setPlayers((prev) => prev.filter((p) => p.key !== user?.presence_ref))
       })
