@@ -7,15 +7,15 @@ export const useHandlePoints = () => {
   const setTeamTwo = useSetAtom(teamTwoAtom)
 
   return useCallback(
-    (message: string) => {
-      if (message === "A") {
+    ({ team }: { team: string }) => {
+      if (team === "A") {
         setTeamOne((prev) => ({
           ...prev,
           points: prev.points + 1,
         }))
       }
 
-      if (message === "B") {
+      if (team === "B") {
         setTeamTwo((prev) => ({
           ...prev,
           points: prev.points + 1,

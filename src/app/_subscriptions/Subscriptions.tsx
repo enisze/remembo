@@ -121,7 +121,7 @@ export const Subscriptions = () => {
         }
         case "points": {
           const schema = z.object({
-            message: z.string(),
+            message: z.object({ team: z.string() }),
           })
 
           const { message } = schema.parse(payload)
