@@ -129,6 +129,7 @@ export const CurrentPlayerView = () => {
       },
     })
 
+    //TODO: add this
     await channel.send({
       type: "broadcast",
       event: "remainingCards",
@@ -136,9 +137,7 @@ export const CurrentPlayerView = () => {
     })
 
     const newTime =
-      newTeam === "A"
-        ? teamOne?.remainingTime + 60
-        : teamTwo?.remainingTime + 60
+      newTeam === "A" ? teamOne?.remainingTime + 5 : teamTwo?.remainingTime + 5
 
     await channel.send({
       type: "broadcast",

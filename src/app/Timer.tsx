@@ -66,7 +66,7 @@ export const Timer = () => {
             type: "broadcast",
             event: "timer",
             payload: {
-              message: 60,
+              message: 5,
             },
           })
 
@@ -108,6 +108,8 @@ export const Timer = () => {
               },
             })
 
+            //TODO: when round is over (all  cards where displayed, then all buttons should disappear and only next round is pressable)
+            //When pressed next round, timer is reset, and all cards are reset and next player is chosen.
             await channel.send({
               event: "displayedCards",
               type: "broadcast",
