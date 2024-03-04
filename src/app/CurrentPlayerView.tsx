@@ -45,7 +45,6 @@ export const CurrentPlayerView = () => {
   const setNextPlayer = useSetNextPlayer()
 
   useEffect(() => {
-    console.log(displayedCards, remainingCards)
     if (timerStarted) {
       timer.current = setInterval(() => {
         const newTime = timeLeft - 1

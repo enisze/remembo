@@ -111,7 +111,7 @@ export const Timer = () => {
             await channel.send({
               event: "displayedCards",
               type: "broadcast",
-              payload: {},
+              payload: { message: undefined },
             })
           }}
           variant="outline"
