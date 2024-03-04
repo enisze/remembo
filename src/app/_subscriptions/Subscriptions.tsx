@@ -139,6 +139,7 @@ export const Subscriptions = () => {
 
           const { message } = schema.parse(payload)
           handleTimeTeams(message)
+          break
         }
 
         case "round": {
@@ -148,6 +149,7 @@ export const Subscriptions = () => {
 
           const { message } = schema.parse(payload)
           handleCurrentRound(message)
+          break
         }
 
         default: {
